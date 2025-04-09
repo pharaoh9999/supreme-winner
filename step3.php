@@ -1,4 +1,6 @@
 <?php
+include './includes/functions.php';
+
 if (
     !isset($_POST['number_plate']) ||
     !isset($_POST['zone_id']) ||
@@ -13,6 +15,14 @@ $number_plate = strtoupper(trim($_POST['number_plate']));
 $parking_zone = intval($_POST['zone_id']);
 $vehicle_type = strtolower(trim($_POST['vehicle_type']));
 $parking_duration = strtolower(trim($_POST['parking_duration']));
+
+$vehicle_type_dt = json_decode(httpPost('https://nairobiservices.go.ke/api/parking/parking/park_details',['parking_duration'=>'daily','number_plate'=>$number_plate,'parking_zone'=>'1']),true);
+
+if(isset($vehicle_type_dt['vehicle_type'])){
+    $vehicle_type = strtolower(trim($vehicle_type_dt['vehicle_type']));
+}else{
+    $vehicle_type = strtolower(trim($_POST['vehicle_type']));
+}
 
 $url = 'https://nairobiservices.go.ke/api/parking/parking/payment_details';
 
