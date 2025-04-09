@@ -25,7 +25,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
 
         h2,
         h4 {
-            color: #00c853;
+            color:rgb(1, 63, 27);
             /* Neon green for cybersecurity look */
         }
 
