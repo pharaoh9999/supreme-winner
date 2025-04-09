@@ -81,7 +81,7 @@ try {
             broker_fee, client_phone, payable, tx_ref, amount, status,
             flutterwave_verified, zone_id, vehicle_type, parking_duration, user_id, created_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, ?, ?, ?, ?, NOW())
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ".$random_number.", 'initiated', 0, ?, ?, ?, ?, NOW())
         ON DUPLICATE KEY UPDATE
             broker_fee = VALUES(broker_fee),
             client_phone = VALUES(client_phone),

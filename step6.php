@@ -192,7 +192,7 @@ try {
     </div>
 
     <div id="finalBox" class="mt-4 d-none"></div>
-    <div class="mt-4 d-none">
+    <div class="mt-4">
       <a href="./index.php" class="btn btn-dark">Home Page</a>
     </div>
   </div>
