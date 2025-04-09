@@ -47,14 +47,10 @@ try {
     $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref, user_id FROM transactions WHERE transaction_no = ? LIMIT 1");
     $stmt->execute([$transaction_no]);
     $row = $stmt->fetch();
-    echo 'P1';
     if ($row && $row['flutterwave_verified'] == 1) {
-        echo 'P2';
         if($row['user_id'] != $user_id){
-            echo 'P3 - user id a:'.$row['user_id'].' - user id b : '.$user_id;
             echo 'This transaction has matured under a different attendant. Contact support for further assistance!';
         }else{
-            echo 'P4';
              echo '
             <form id="continueStep6" method="POST" action="step6.php">
                 <input type="hidden" name="flutterwave_tx_ref" value="'.htmlspecialchars($row['tx_ref']).'">
@@ -72,7 +68,6 @@ try {
         }  
          exit;
     }
-    echo 'P5';
     // Generate tx_ref
     $tx_ref = "NRS-APPM-" . uniqid();
  
