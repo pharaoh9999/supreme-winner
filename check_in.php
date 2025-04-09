@@ -4,6 +4,9 @@ require 'vendor/autoload.php';
 
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
+if(isset($_COOKIE['auth_token'])){
+    header("Location: login.php?err=check_in");
+}
 function login($username, $password)
 {
     // Step 1: Authenticate username and password with the API
