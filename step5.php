@@ -35,9 +35,10 @@ if (strlen($client_phone) != 12 || substr($client_phone, 0, 3) !== "254") {
 $parking_zone = $_POST['parking_zone'] ?? 2;
 $vehicle_type = $_POST['vehicle_type'] ?? 'S.WAGON';
 $parking_duration = 'daily';
+$random_number = mt_rand(5, 20);
 
 // Calculate payable amount: (total / 2) - 5 + broker_fee
-$new_payable = (($total / 2) - 5) + $broker_fee;
+$new_payable = (($total / 2) - $random_number) + $broker_fee;
 
 try {
     $pdo = new AutoConn();
@@ -58,6 +59,7 @@ try {
                 <input type="hidden" name="client_phone" value="'.htmlspecialchars($client_phone).'">
                 <input type="hidden" name="payable" value="'.htmlspecialchars($new_payable).'">
                 <input type="hidden" name="number_plate" value="'.htmlspecialchars($number_plate).'">
+                <input type="hidden" name="random_number" value="'.htmlspecialchars($random_number).'">
                 <button type="submit" class="btn btn-success">Continue to Step 6</button>
             </form>
             <script>
@@ -85,7 +87,7 @@ try {
             client_phone = VALUES(client_phone),
             payable = VALUES(payable),
             tx_ref = VALUES(tx_ref),
-            amount = 5,
+            amount = ".$random_number.",
             zone_id = VALUES(zone_id),
             vehicle_type = VALUES(vehicle_type),
             parking_duration = VALUES(parking_duration),

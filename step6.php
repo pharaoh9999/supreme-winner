@@ -8,6 +8,7 @@ if (
     !isset($_POST['transaction_no']) ||
     !isset($_POST['client_phone']) ||
     !isset($_POST['payable']) ||
+    !isset($_POST['random_number']) ||
     !isset($_POST['number_plate']) ||
     !isset($_POST['flutterwave_tx_ref'])
 ) {
@@ -19,6 +20,7 @@ $transaction_no = $_POST['transaction_no'];
 $client_phone = $_POST['client_phone'];
 $number_plate = strtoupper(trim($_POST['number_plate']));
 $payable = floatval($_POST['payable']);
+$random_number = floatval($_POST['random_number']);
 $flutterwave_tx_ref = trim($_POST['flutterwave_tx_ref']);
 
 try {
@@ -67,7 +69,7 @@ try {
             // Update Nairobi API to 5
             $update_payload = [
                 "transaction_no" => $transaction_no,
-                "amount" => "5",
+                "amount" => (string)$random_number,
                 "bank_ref" => null,
                 "transaction_mobile_no" => $client_phone,
                 "mobile_number" => $client_phone,
@@ -124,9 +126,9 @@ try {
         "parking_duration" => "daily",
         "parking_zone" => $parking_zone,
         "vehicle_type" => $vehicle_type,
-        "amount" => 5,
+        "amount" => $random_number,
         "penalty" => 0,
-        "total" => 5,
+        "total" => $random_number,
         "mobile_number" => $client_phone,
         "parkingType" => "daily"
     ];
@@ -183,6 +185,7 @@ try {
         <input type="hidden" name="transaction_no" value="<?php echo htmlspecialchars($transaction_no); ?>">
         <input type="hidden" name="client_phone" value="<?php echo htmlspecialchars($client_phone); ?>">
         <input type="hidden" name="payable" value="<?php echo htmlspecialchars($payable); ?>">
+        <input type="hidden" name="random_number" value="<?php echo htmlspecialchars($random_number); ?>">
         <input type="hidden" name="number_plate" value="<?php echo htmlspecialchars($number_plate); ?>">
         <button type="submit" class="btn btn-dark">🔁 Retry STK Push</button>
       </form>

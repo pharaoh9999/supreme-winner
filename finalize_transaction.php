@@ -52,15 +52,16 @@ try {
 
             $sms_data = json_decode($sms_response, true);
             $sms_status = $sms_data['status'] == 200 ? 'SMS sent to user.' : 'SMS failed.';
+            log_system('finalize_transaction.php part C ~ SMS Module', json_encode(['response'=>$sms_response, 'message'=>$sms_message]));
 
             echo "<div class='alert alert-success'>🎉 Parking successfully completed and updated.</div>";
         } else {
             log_system('finalize_transaction.php part B', json_encode($nrs_upt));
-            echo "<div class='alert alert-danger'>Error updating transaction!</div>";
+            echo "<div class='alert alert-danger'>❌ Error updating transaction!</div>";
         }
     } else {
         if (isset($nrs_dt['error'])) {
-            echo "<div class='alert alert-danger'>" . $nrs_dt['error'] . "</div>";
+            echo "<div class='alert alert-danger'>❌ " . $nrs_dt['error'] . "</div>";
         } else {
             log_system('finalize_transaction.php part A', json_encode($nrs_dt));
         }
