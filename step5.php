@@ -51,7 +51,7 @@ try {
     if ($row && $row['flutterwave_verified'] == 1) {
         echo 'P2';
         if($row['user_id'] !== $user_id){
-            echo 'P3';
+            echo 'P3 - user id a:'.$row['user_id'].' - user id 2 : '.$user_id;
             echo 'This transaction has matured under a different attendant. Contact support for further assistance!';
         }else{
             echo 'P4';
