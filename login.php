@@ -19,7 +19,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
         /* Cybersecurity theme styles */
         body {
             background-color: rgb(156, 175, 194);
-            color:rgb(7, 7, 1);
+            color:rgb(52, 56, 6);
             font-family: Arial, sans-serif;
         }
 
@@ -54,7 +54,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
 
         .form-control {
             background-color: rgb(189, 203, 235);
-            color:rgb(13, 14, 2);
+            color:rgb(52, 56, 6);
             border: 1px solid #00c853;
         }
     </style>
