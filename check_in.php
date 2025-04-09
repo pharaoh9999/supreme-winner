@@ -4,8 +4,25 @@ require 'vendor/autoload.php';
 
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
-include 'includes/config.php';
-require './includes/functions.php';
+function login($username, $password)
+{
+    // Step 1: Authenticate username and password with the API
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://kever.io/finder_10_auth.php');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, [
+        'username' => $username,
+        'password' => $password,
+    ]);
+    curl_setopt($ch, CURLOPT_COOKIE, "visitorId=973ad0dd0c565ca2ae839d5ebef8447a");
+
+    $response = curl_exec($ch);
+    $apiResponse = json_decode($response, true);
+    curl_close($ch);
+
+    return $apiResponse;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $otp = $_POST['auth'];
