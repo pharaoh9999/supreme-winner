@@ -90,14 +90,14 @@ try {
     // Trigger Pay API with KES 5
     $pay_payload = [
         "number_plate" => $number_plate,
-        "parking_duration" => $parking_duration,
+        "parking_duration" => "daily",
         "parking_zone" => $parking_zone,
         "vehicle_type" => $vehicle_type,
         "amount" => 5,
         "penalty" => 0,
         "total" => 5,
         "mobile_number" => $client_phone,
-        "parkingType" => $parking_duration
+        "parkingType" => "daily"
     ];
 
     $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/daily/pay");

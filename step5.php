@@ -27,6 +27,11 @@ if (strlen($client_phone) != 12 || substr($client_phone, 0, 3) !== "254") {
     exit;
 }
 
+// 🔧 Additional values needed for tracking
+$parking_zone = $_POST['parking_zone'] ?? 2;
+$vehicle_type = $_POST['vehicle_type'] ?? 'S.WAGON';
+$parking_duration = 'daily';
+
 // Calculate payable amount: (total / 2) - 5 + broker_fee
 $new_payable = ($total / 2) - 5 + $broker_fee;
 
@@ -34,13 +39,12 @@ try {
     $pdo = new AutoConn();
     $conn = $pdo->open();
 
-    // Check if transaction already exists
+    // Check if Flutterwave was already paid
     $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref FROM transactions WHERE transaction_no = ? LIMIT 1");
     $stmt->execute([$transaction_no]);
     $row = $stmt->fetch();
 
     if ($row && $row['flutterwave_verified'] == 1) {
-        // Flutterwave already paid, go to step6 directly
         echo '
             <form id="continueStep6" method="POST" action="step6.php">
                 <input type="hidden" name="flutterwave_tx_ref" value="'.htmlspecialchars($row['tx_ref']).'">
@@ -57,10 +61,10 @@ try {
         exit;
     }
 
-    // Generate Flutterwave tx_ref
+    // Generate tx_ref
     $tx_ref = "KEVER-" . uniqid();
 
-    // Update transaction in Nairobi API (KES 5)
+    // Update Nairobi API to 5
     $update_payload = [
         "transaction_no" => $transaction_no,
         "amount" => "5",
@@ -88,20 +92,30 @@ try {
         exit;
     }
 
-    // Save or update transaction in DB
+    // Save or update transaction with extra fields
     $stmt = $conn->prepare("
-        INSERT INTO transactions (transaction_no, number_plate, original_amount, penalty, total, broker_fee, client_phone, payable, tx_ref, amount, status, flutterwave_verified, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, NOW())
+        INSERT INTO transactions (
+            transaction_no, number_plate, original_amount, penalty, total,
+            broker_fee, client_phone, payable, tx_ref, amount, status,
+            flutterwave_verified, zone_id, vehicle_type, parking_duration, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, ?, ?, ?, NOW())
         ON DUPLICATE KEY UPDATE
             broker_fee = VALUES(broker_fee),
             client_phone = VALUES(client_phone),
             payable = VALUES(payable),
             tx_ref = VALUES(tx_ref),
             amount = 5,
-            status = 'initiated',
+            zone_id = VALUES(zone_id),
+            vehicle_type = VALUES(vehicle_type),
+            parking_duration = VALUES(parking_duration),
             updated_at = NOW()
     ");
-    $stmt->execute([$transaction_no, $number_plate, $original_amount, $penalty, $total, $broker_fee, $client_phone, $new_payable, $tx_ref]);
+    $stmt->execute([
+        $transaction_no, $number_plate, $original_amount, $penalty, $total,
+        $broker_fee, $client_phone, $new_payable, $tx_ref,
+        $parking_zone, $vehicle_type, $parking_duration
+    ]);
 
     $pdo->close();
 
@@ -111,9 +125,8 @@ try {
 }
 
 // Redirect to Flutterwave
-$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X"; // Replace with real public key
+$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X";
 $callback_url = "https://nrske.sbnke.com/verify_payment.php";
-
 $payment_url = "https://checkout.flutterwave.com/v3/hosted/pay";
 
 echo '
