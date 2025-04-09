@@ -1,15 +1,24 @@
 <?php
-if (!isset($_GET['tx_ref'])) {
-    die("Missing tx_ref.");
+if (!isset($_GET['tx_ref']) || !isset($_GET['status'])) {
+    die("Invalid redirect. Missing reference or status.");
 }
 
 $tx_ref = $_GET['tx_ref'];
-// You can store it in session or forward to step6.php via POST automatically
+$status = strtolower($_GET['status']);
+
+if ($status !== 'successful') {
+    echo "<div style='margin: 2rem; font-family: sans-serif;'>
+            <h3 style='color: red;'>❌ Payment Failed or Cancelled</h3>
+            <p>Transaction Reference: <strong>$tx_ref</strong></p>
+            <p>Status: <strong>" . htmlspecialchars($status) . "</strong></p>
+            <a href='index.php' style='color: #007bff;'>Try Again</a>
+          </div>";
+    exit;
+}
 ?>
 
 <form id="continueStep6" method="POST" action="step6.php">
     <input type="hidden" name="flutterwave_tx_ref" value="<?php echo htmlspecialchars($tx_ref); ?>">
-    <!-- You can also auto-fetch client_phone & transaction_no from DB here if needed -->
     <button type="submit" class="btn btn-success">Click here if not redirected</button>
 </form>
 
