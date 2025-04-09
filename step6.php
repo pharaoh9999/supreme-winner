@@ -148,11 +148,11 @@ try {
     if(isset($stk_verif['data']['transaction_no'])){
       $stk_message = '<h4 class="mb-3 text-success">✅ STK Push Sent</h4>';
     }else{
-        $stk_message = '<h4 class="mb-3 text-danger">STK Push Not Sent!</h4>';
+        $stk_message = '<h4 class="mb-3 text-danger">❌ STK Push Not Sent!</h4>';
     }
 
 } catch (Exception $e) {
-    echo "<div class='alert alert-danger'>System error: " . $e->getMessage() . "</div>";
+    echo "<div class='alert alert-danger'>❌ System error: " . $e->getMessage() . "</div>";
     exit;
 }
 ?>
@@ -192,6 +192,9 @@ try {
     </div>
 
     <div id="finalBox" class="mt-4 d-none"></div>
+    <div class="mt-4 d-none">
+      <a href="./index.php" class="btn btn-dark">Home Page</a>
+    </div>
   </div>
 </div>
 
