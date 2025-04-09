@@ -27,49 +27,71 @@ if (strlen($client_phone) != 12 || substr($client_phone, 0, 3) !== "254") {
     exit;
 }
 
-// Calculate new payable amount: (total / 2) - 5 + broker_fee
+// Calculate payable amount: (total / 2) - 5 + broker_fee
 $new_payable = ($total / 2) - 5 + $broker_fee;
 
-// Generate a unique Flutterwave tx_ref
-$tx_ref = "KEVER-" . uniqid();
-
-// Update transaction to KES 5 in Nairobi API
-$update_payload = [
-    "transaction_no" => $transaction_no,
-    "amount" => "5",
-    "bank_ref" => null,
-    "transaction_mobile_no" => $client_phone,
-    "mobile_number" => $client_phone,
-    "name" => ""
-];
-
-$ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/transaction/update");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
-]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_payload));
-$response = curl_exec($ch);
-curl_close($ch);
-
-$result = json_decode($response, true);
-
-if (!isset($result['status']) || $result['status'] != 200) {
-    echo "Failed to update transaction to 5 bob.";
-    exit;
-}
-
-// Save transaction to DB (or update if it already exists)
 try {
     $pdo = new AutoConn();
     $conn = $pdo->open();
 
-    // Insert or update with tx_ref and payable
+    // Check if transaction already exists
+    $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref FROM transactions WHERE transaction_no = ? LIMIT 1");
+    $stmt->execute([$transaction_no]);
+    $row = $stmt->fetch();
+
+    if ($row && $row['flutterwave_verified'] == 1) {
+        // Flutterwave already paid, go to step6 directly
+        echo '
+            <form id="continueStep6" method="POST" action="step6.php">
+                <input type="hidden" name="flutterwave_tx_ref" value="'.htmlspecialchars($row['tx_ref']).'">
+                <input type="hidden" name="transaction_no" value="'.htmlspecialchars($transaction_no).'">
+                <input type="hidden" name="client_phone" value="'.htmlspecialchars($client_phone).'">
+                <input type="hidden" name="payable" value="'.htmlspecialchars($new_payable).'">
+                <input type="hidden" name="number_plate" value="'.htmlspecialchars($number_plate).'">
+                <button type="submit" class="btn btn-success">Continue to Step 6</button>
+            </form>
+            <script>
+              document.getElementById("continueStep6").submit();
+            </script>
+        ';
+        exit;
+    }
+
+    // Generate Flutterwave tx_ref
+    $tx_ref = "KEVER-" . uniqid();
+
+    // Update transaction in Nairobi API (KES 5)
+    $update_payload = [
+        "transaction_no" => $transaction_no,
+        "amount" => "5",
+        "bank_ref" => null,
+        "transaction_mobile_no" => $client_phone,
+        "mobile_number" => $client_phone,
+        "name" => ""
+    ];
+
+    $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/transaction/update");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_payload));
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $result = json_decode($response, true);
+
+    if (!isset($result['status']) || $result['status'] != 200) {
+        echo "Failed to update transaction to 5 bob.";
+        exit;
+    }
+
+    // Save or update transaction in DB
     $stmt = $conn->prepare("
-        INSERT INTO transactions (transaction_no, number_plate, original_amount, penalty, total, broker_fee, client_phone, payable, tx_ref, amount, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', NOW())
+        INSERT INTO transactions (transaction_no, number_plate, original_amount, penalty, total, broker_fee, client_phone, payable, tx_ref, amount, status, flutterwave_verified, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, NOW())
         ON DUPLICATE KEY UPDATE
             broker_fee = VALUES(broker_fee),
             client_phone = VALUES(client_phone),
@@ -82,14 +104,15 @@ try {
     $stmt->execute([$transaction_no, $number_plate, $original_amount, $penalty, $total, $broker_fee, $client_phone, $new_payable, $tx_ref]);
 
     $pdo->close();
+
 } catch (Exception $e) {
     echo "Database error: " . $e->getMessage();
     exit;
 }
 
-// FLUTTERWAVE PAY REDIRECT
-$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X"; // Replace with your public key
-$callback_url = "https://nrske.sbnke.com/verify_payment.php"; // Replace with your real endpoint
+// Redirect to Flutterwave
+$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X"; // Replace with real public key
+$callback_url = "https://nrske.sbnke.com/verify_payment.php";
 
 $payment_url = "https://checkout.flutterwave.com/v3/hosted/pay";
 
