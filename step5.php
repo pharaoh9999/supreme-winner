@@ -89,7 +89,7 @@ try {
 
 // FLUTTERWAVE PAY REDIRECT
 $public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X"; // Replace with your public key
-$callback_url = "https://yourdomain.com/verify_payment.php"; // Replace with your real endpoint
+$callback_url = "https://nrske.sbnke.com/verify_payment.php"; // Replace with your real endpoint
 
 $payment_url = "https://checkout.flutterwave.com/v3/hosted/pay";
 
