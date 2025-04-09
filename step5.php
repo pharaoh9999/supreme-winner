@@ -17,6 +17,7 @@ if (
     exit;
 }
 
+$user_id = $_SESSION['user_id'];
 $transaction_no = $_POST['transaction_no'];
 $original_amount = floatval($_POST['original_amount']);
 $penalty = floatval($_POST['penalty']);
@@ -43,12 +44,15 @@ try {
     $conn = $pdo->open();
 
     // Check if Flutterwave was already paid
-    $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref FROM transactions WHERE transaction_no = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref, user_id FROM transactions WHERE transaction_no = ? LIMIT 1");
     $stmt->execute([$transaction_no]);
     $row = $stmt->fetch();
 
     if ($row && $row['flutterwave_verified'] == 1) {
-        echo '
+        if($row['user_id'] !== $user_id){
+            echo 'This transaction has matured under a different attendant. Contact support for further assistance!';
+        }else{
+             echo '
             <form id="continueStep6" method="POST" action="step6.php">
                 <input type="hidden" name="flutterwave_tx_ref" value="'.htmlspecialchars($row['tx_ref']).'">
                 <input type="hidden" name="transaction_no" value="'.htmlspecialchars($transaction_no).'">
@@ -62,10 +66,11 @@ try {
             </script>
         ';
         exit;
+        }  
     }
 
     // Generate tx_ref
-    $tx_ref = "KEVER-" . uniqid();
+    $tx_ref = "NRS-APPM-" . uniqid();
  
 
     // Save or update transaction with extra fields
@@ -73,9 +78,9 @@ try {
         INSERT INTO transactions (
             transaction_no, number_plate, original_amount, penalty, total,
             broker_fee, client_phone, payable, tx_ref, amount, status,
-            flutterwave_verified, zone_id, vehicle_type, parking_duration, created_at
+            flutterwave_verified, zone_id, vehicle_type, parking_duration, user_id, created_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, ?, ?, ?, NOW())
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5, 'initiated', 0, ?, ?, ?, ?, NOW())
         ON DUPLICATE KEY UPDATE
             broker_fee = VALUES(broker_fee),
             client_phone = VALUES(client_phone),
@@ -85,12 +90,13 @@ try {
             zone_id = VALUES(zone_id),
             vehicle_type = VALUES(vehicle_type),
             parking_duration = VALUES(parking_duration),
+            user_id = VALUES(user_id),
             updated_at = NOW()
     ");
     $stmt->execute([
         $transaction_no, $number_plate, $original_amount, $penalty, $total,
         $broker_fee, $client_phone, $new_payable, $tx_ref,
-        $parking_zone, $vehicle_type, $parking_duration
+        $parking_zone, $vehicle_type, $parking_duration, $user_id
     ]);
 
     $pdo->close();

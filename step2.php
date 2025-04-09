@@ -33,6 +33,8 @@ if ($result['paid'] === true) {
     exit;
 }
 
+
+
 // Parking not paid, proceed to step 3 UI
 ?>
 <div class="alert alert-warning mt-3">Parking not paid. Proceeding to payment details...</div>
