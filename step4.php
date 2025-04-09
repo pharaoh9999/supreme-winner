@@ -73,6 +73,8 @@ $returned_amount = $result['data']['amount'];
   <input type="hidden" name="penalty" value="<?php echo $penalty; ?>">
   <input type="hidden" name="total" value="<?php echo $total; ?>">
   <input type="hidden" name="number_plate" value="<?php echo htmlspecialchars($number_plate); ?>">
+  <input type="hidden" name="parking_zone" value="<?php echo htmlspecialchars($parking_zone); ?>">
+  <input type="hidden" name="vehicle_type" value="<?php echo htmlspecialchars($vehicle_type); ?>">
 
   <div class="mb-3">
     <label for="broker_fee" class="form-label">Broker Fee (KES)</label>

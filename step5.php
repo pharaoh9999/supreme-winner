@@ -121,7 +121,7 @@ echo '
         <input type="hidden" name="payment_options" value="mobilemoney">
         <input type="hidden" name="customer[name]" value="Parking Client">
         <input type="hidden" name="customer[phonenumber]" value="'.$client_phone.'">
-        <input type="hidden" name="customer[email]" value="parking@kever.io">
+        <input type="hidden" name="customer[email]" value="parking@appm.nairobiservices.go.ke">
         <input type="hidden" name="customizations[title]" value="Nairobi Parking Module">
         <input type="hidden" name="customizations[description]" value="Pay for Nairobi parking service">
     </form>
