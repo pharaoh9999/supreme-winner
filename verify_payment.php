@@ -23,7 +23,7 @@ try {
     $pdo = new AutoConn();
     $conn = $pdo->open();
 
-    $stmt = $conn->prepare("SELECT transaction_no, client_phone FROM transactions WHERE tx_ref = ? LIMIT 1");
+    $stmt = $conn->prepare("SELECT transaction_no, client_phone, payable, number_plate FROM transactions WHERE tx_ref = ? LIMIT 1");
     $stmt->execute([$tx_ref]);
     $row = $stmt->fetch();
 
@@ -36,6 +36,8 @@ try {
 
     $transaction_no = $row['transaction_no'];
     $client_phone = $row['client_phone'];
+    $payable = $row['payable'];
+    $number_plate = $row['number_plate'];
 
 } catch (Exception $e) {
     echo "DB error: " . $e->getMessage();
@@ -47,6 +49,8 @@ try {
     <input type="hidden" name="flutterwave_tx_ref" value="<?php echo htmlspecialchars($tx_ref); ?>">
     <input type="hidden" name="transaction_no" value="<?php echo htmlspecialchars($transaction_no); ?>">
     <input type="hidden" name="client_phone" value="<?php echo htmlspecialchars($client_phone); ?>">
+    <input type="hidden" name="payable" value="<?php echo htmlspecialchars($payable); ?>">
+    <input type="hidden" name="number_plate" value="<?php echo htmlspecialchars($number_plate); ?>">
     <button type="submit" class="btn btn-success">Click here if not redirected</button>
 </form>
 
