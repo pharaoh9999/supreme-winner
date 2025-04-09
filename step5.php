@@ -63,34 +63,7 @@ try {
 
     // Generate tx_ref
     $tx_ref = "KEVER-" . uniqid();
-
-    // Update Nairobi API to 5
-    $update_payload = [
-        "transaction_no" => $transaction_no,
-        "amount" => "1000",
-        "bank_ref" => null,
-        "transaction_mobile_no" => $client_phone,
-        "mobile_number" => $client_phone,
-        "name" => ""
-    ];
-
-    $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/transaction/update");
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
-    ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_payload));
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    $result = json_decode($response, true);
-
-    if (!isset($result['status']) || $result['status'] != 200) {
-        echo "Failed to update transaction to 5 bob.";
-        exit;
-    }
+ 
 
     // Save or update transaction with extra fields
     $stmt = $conn->prepare("
