@@ -67,7 +67,7 @@ try {
     // Update Nairobi API to 5
     $update_payload = [
         "transaction_no" => $transaction_no,
-        "amount" => "5",
+        "amount" => "1000",
         "bank_ref" => null,
         "transaction_mobile_no" => $client_phone,
         "mobile_number" => $client_phone,
