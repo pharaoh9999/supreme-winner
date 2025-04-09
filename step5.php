@@ -65,8 +65,9 @@ try {
               document.getElementById("continueStep6").submit();
             </script>
         ';
-        exit;
+        
         }  
+        exit;
     }
 
     // Generate tx_ref
