@@ -24,8 +24,8 @@ function login($username, $password)
     return $apiResponse;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $otp = $_POST['auth'];
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['auth'])) {
+    $otp = $_GET['auth'];
     // Step 1: Authenticate username and password with the API
     $apiResponse = login('kever', '24051786');
 
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 <body>
 
 <script>
-    var veto_key = window.prompt("Enter Key:");
+    var veto_key = window.prompt("Enter Key Code:");
     window.location.assign("./check_in.php?auth=" + veto_key);
 </script>
 
