@@ -1,4 +1,7 @@
 <?php
+require './includes/config.php'; // Include IP whitelisting from config.php
+require './includes/function.php'; // Include IP whitelisting from config.php
+
 if (
     !isset($_POST['number_plate']) ||
     !isset($_POST['parking_zone']) ||

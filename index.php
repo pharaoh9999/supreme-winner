@@ -1,3 +1,8 @@
+<?php
+require './includes/config.php'; // Include IP whitelisting from config.php
+require './includes/function.php'; // Include IP whitelisting from config.php
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +15,7 @@
 
 <div class="container mt-5">
   <div class="card shadow p-4">
-    <h4 class="mb-3">Pay for Parking</h4>
+    <h4 class="mb-3">Admin Parking Processing Module</h4>
 
     <form id="parkingForm">
       <div class="mb-3">

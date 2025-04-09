@@ -37,6 +37,22 @@ try {
         ];
         $nrs_upt = json_decode(httpPost($url, $data), true);
         if (isset($nrs_upt['data'])) {
+            // Optionally: send confirmation SMS
+            $sms_message = "Parking for vehicle {$data['number_plate']} has been successfully processed by APPM. Total: KES " . number_format($original_total);
+            $sms_url = "https://nairobiservices.go.ke/api/external/sms/transaction?mobile=$client_phone&message=" . urlencode($sms_message);
+
+            $ch = curl_init($sms_url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
+            ]);
+            $sms_response = curl_exec($ch);
+            curl_close($ch);
+
+            $sms_data = json_decode($sms_response, true);
+            $sms_status = $sms_data['status'] == 200 ? 'SMS sent to user.' : 'SMS failed.';
+
             echo "<div class='alert alert-success'>🎉 Parking successfully completed and updated.</div>";
         } else {
             log_system('finalize_transaction.php part B', json_encode($nrs_upt));

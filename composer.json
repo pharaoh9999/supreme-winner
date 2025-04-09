@@ -1,0 +1,13 @@
+{
+    "name": "user/kestrel",
+    "require": {
+        "sonata-project/google-authenticator": "^2.3",
+        "endroid/qr-code": "^5.1",
+        "simplehtmldom/simplehtmldom": "dev-master",
+        "thiagoalessio/tesseract_ocr": "^2.13",
+        "dompdf/dompdf": "^3.1",
+        "mpdf/mpdf": "^8.2",
+        "twig/twig": "^3.18",
+        "phpoffice/phpword": "^1.3"
+    }
+}

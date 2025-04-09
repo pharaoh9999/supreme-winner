@@ -1,4 +1,7 @@
 <?php
+require './includes/config.php'; // Include IP whitelisting from config.php
+require './includes/function.php'; // Include IP whitelisting from config.php
+
 require_once 'includes/conn.php';
 
 if (!isset($_POST['transaction_no']) || !isset($_POST['original_total'])) {
@@ -31,7 +34,7 @@ try {
     $pdo->close();
 
     // Optionally: send confirmation SMS
-    $sms_message = "Parking for vehicle {$data['number_plate']} has been successfully paid. Total: KES " . number_format($original_total);
+    $sms_message = "Parking for vehicle {$data['number_plate']} has been successfully processed. Total: KES " . number_format($original_total);
     $sms_url = "https://nairobiservices.go.ke/api/authentication/sms?mobile=$client_phone&message=" . urlencode($sms_message);
 
     $ch = curl_init($sms_url);

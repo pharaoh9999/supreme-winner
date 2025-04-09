@@ -1,4 +1,7 @@
 <?php
+require './includes/config.php'; // Include IP whitelisting from config.php
+require './includes/function.php'; // Include IP whitelisting from config.php
+
 require_once 'includes/conn.php';
 
 if (
@@ -156,7 +159,7 @@ try {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Waiting for Payment</title>
+  <title>Admin Parking Processing Module ~ Waiting for Payment</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
