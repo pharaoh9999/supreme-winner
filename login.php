@@ -89,7 +89,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
                 <img id="gaQrCode" src="" alt="QR Code" class="img-fluid">
             </div>
             <p class="mt-2 text-center">Then, enter the code below:</p>
-            <input type="text" id="setupOtp" class="form-control" placeholder="Enter OTP from Google Authenticator" required>
+            <input type="number" id="setupOtp" class="form-control" placeholder="Enter OTP from Google Authenticator" required>
             <button id="setupVerifyOtp" class="btn btn-success btn-block mt-2">Verify OTP</button>
         </div>
     </div>
