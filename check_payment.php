@@ -1,6 +1,6 @@
 <?php
 require './includes/config.php'; // Include IP whitelisting from config.php
-require './includes/function.php'; // Include IP whitelisting from config.php
+require './includes/functions.php'; // Include IP whitelisting from config.php
 
 if (!isset($_GET['plate'])) {
     echo 'error';
