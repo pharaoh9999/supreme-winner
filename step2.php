@@ -59,6 +59,9 @@ if ($result['paid'] === true) {
     <select class="form-select" name="parking_duration" id="parking_duration" required>
       <option value="daily" selected>Daily</option>
       <option value="monthly">Monthly</option>
+      <option value="3 months">3 Months</option>
+      <option value="6 months">6 Months</option>
+      <option value="12 months">12 Months</option>
     </select>
   </div>
 
