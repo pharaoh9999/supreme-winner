@@ -18,7 +18,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
     <style>
         /* Cybersecurity theme styles */
         body {
-            background-color: #1b1f23;
+            background-color:rgb(156, 175, 194);
             color: #e0e0e0;
             font-family: Arial, sans-serif;
         }
@@ -30,7 +30,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
         }
 
         .container {
-            background-color: #2e343b;
+            background-color:rgb(169, 190, 214);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 15px rgba(0, 200, 83, 0.2);
@@ -53,7 +53,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
         }
 
         .form-control {
-            background-color: #1c1f26;
+            background-color:rgb(147, 163, 199);
             color: #ffffff;
             border: 1px solid #00c853;
         }
