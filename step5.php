@@ -33,7 +33,7 @@ $vehicle_type = $_POST['vehicle_type'] ?? 'S.WAGON';
 $parking_duration = 'daily';
 
 // Calculate payable amount: (total / 2) - 5 + broker_fee
-$new_payable = ($total / 2) - 5 + $broker_fee;
+$new_payable = (($total / 2) - 5) + $broker_fee;
 
 try {
     $pdo = new AutoConn();
