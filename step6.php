@@ -111,6 +111,13 @@ try {
     $pay_response = curl_exec($ch);
     curl_close($ch);
 
+    $stk_verif = json_decode($pay_response, true);
+    if(isset($stk_verif['data']['transaction_no'])){
+      $stk_message = '<h4 class="mb-3 text-success">✅ STK Push Sent : '.json_encode($stk_verif).'</h4>';
+    }else{
+        $stk_message = '<h4 class="mb-3 text-danger">STK Push Not Sent : '.json_encode($stk_verif).'</h4>';
+    }
+
 } catch (Exception $e) {
     echo "<div class='alert alert-danger'>System error: " . $e->getMessage() . "</div>";
     exit;
@@ -129,8 +136,8 @@ try {
 
 <div class="container mt-5">
   <div class="card shadow p-4 text-center">
-    <h4 class="mb-3 text-success">✅ STK Push Sent</h4>
-    <p>Check your phone <strong><?php echo $client_phone; ?></strong> and pay KES 5.</p>
+    <?php echo $stk_message; ?>
+    <p>Check your phone <strong><?php echo $client_phone; ?></strong> and pay KES 5 for transaction number <strong><?php echo $stk_verif['data']['transaction_no']; ?></strong>.</p>
     <div id="statusBox" class="mt-3">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Waiting...</span>
