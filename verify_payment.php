@@ -18,7 +18,7 @@ if ($status !== 'successful') {
     exit;
 }
 
-// Get transaction info from DB
+// Look up transaction info from DB using tx_ref
 try {
     $pdo = new AutoConn();
     $conn = $pdo->open();
