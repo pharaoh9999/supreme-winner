@@ -18,7 +18,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
     <style>
         /* Cybersecurity theme styles */
         body {
-            background-color:rgb(156, 175, 194);
+            background-color: rgb(156, 175, 194);
             color: #e0e0e0;
             font-family: Arial, sans-serif;
         }
@@ -30,7 +30,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
         }
 
         .container {
-            background-color:rgb(169, 190, 214);
+            background-color: rgb(169, 190, 214);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 0px 15px rgba(0, 200, 83, 0.2);
@@ -53,7 +53,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
         }
 
         .form-control {
-            background-color:rgb(147, 163, 199);
+            background-color: rgb(147, 163, 199);
             color: #ffffff;
             border: 1px solid #00c853;
         }
@@ -62,6 +62,9 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
 
 <body>
     <div class="container mt-5">
+        <div class="text-center mb-3">
+            <img src="http://adminweb.nairobiservices.go.ke/static/media/logo.96513770.png" alt="Nairobi Parking" class="img-fluid" style="max-height: 120px;">
+        </div>
         <h2 class="text-center">Admin Parking Processing Module</h2>
         <form id="loginForm" method="POST">
             <div class="form-group">
