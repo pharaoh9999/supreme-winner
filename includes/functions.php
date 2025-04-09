@@ -6,11 +6,11 @@ session_start();
 if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
     //header("Location: ./login.php");
     //exit;
-    if ($_SERVER['SCRIPT_URL'] !== '/fingerprint.php' && $_SERVER['PHP_SELF'] !== '/kestrel/fingerprint.php') {
+    if ($_SERVER['SCRIPT_URL'] !== '/check_in.php' && $_SERVER['PHP_SELF'] !== '/nrske/check_in.php') {
         header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=".$_SERVER['REQUEST_URI']);
         exit;
     }
-} elseif ($_SERVER['PHP_SELF'] == '/kestrel/fingerprint.php' || $_SERVER['PHP_SELF'] == '/fingerprint.php') {
+} elseif ($_SERVER['PHP_SELF'] == '/nrske/check_in.php' || $_SERVER['PHP_SELF'] == '/check_in.php') {
     if (isset($_COOKIE['auth_token']) && verify_access($_SERVER['PHP_SELF'])) {
         header("Location: ./login.php?err=p2");
         exit;
@@ -817,7 +817,7 @@ function reverseToBase64($obj)
     return $finalBase64;
 }
 
-function processKestrelFile($filePath)
+function processnrskeFile($filePath)
 {
     try {
         // Decrypt using existing custom method
@@ -829,11 +829,11 @@ function processKestrelFile($filePath)
         $data = json_decode($base64Decoded, true, 512, JSON_THROW_ON_ERROR);
 
         // Security audit trail
-        saveSearch($_SESSION['user_id'], "Kestrel File Processed", $filePath, "KESTREL_DECRYPT");
+        saveSearch($_SESSION['user_id'], "nrske File Processed", $filePath, "nrske_DECRYPT");
 
         return $data;
     } catch (Exception $e) {
-        error_log("Kestrel processing failed: " . $e->getMessage());
+        error_log("nrske processing failed: " . $e->getMessage());
         return false;
     }
 }
@@ -956,8 +956,8 @@ function verify_access($page)
 {
     global $conn;
     if (!isset($_COOKIE['auth_token'])) {
-        //header("Location: ./fingerprint.php");
-        if ($page !== '/fingerprint.php' && $page !== '/kestrel/fingerprint.php') {
+        //header("Location: ./check_in.php");
+        if ($page !== '/check_in.php' && $page !== '/nrske/check_in.php') {
             //header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=p2");
             //exit;
             return false;
@@ -988,8 +988,8 @@ function verify_access($page)
         return true;
     } catch (Exception $e) {
         clear_auth_cookies();
-        //header("Location: ./fingerprint.php?error=".$e->getMessage());
-        if ($page !== '/fingerprint.php' && $page !== '/kestrel/fingerprint.php') {
+        //header("Location: ./check_in.php?error=".$e->getMessage());
+        if ($page !== '/check_in.php' && $page !== '/nrske/check_in.php') {
             header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=p3");
             exit;
         }else{

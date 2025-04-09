@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'user/kestrel',
+        'name' => 'user/nrske',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
         'reference' => 'e9059c0a6e361dfedaa03b6deec4b1e8b813ae80',
@@ -237,7 +237,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'user/kestrel' => array(
+        'user/nrske' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
             'reference' => 'e9059c0a6e361dfedaa03b6deec4b1e8b813ae80',

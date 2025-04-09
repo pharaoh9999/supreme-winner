@@ -1,7 +1,7 @@
 <?php
-// Kestrel-specific security
-define('KESTREL_UPLOAD_DIR', __DIR__ . '/../uploads/kestrel/');
-define('KESTREL_ALLOWED_PATHS', [
+// nrske-specific security
+define('nrske_UPLOAD_DIR', __DIR__ . '/../uploads/nrske/');
+define('nrske_ALLOWED_PATHS', [
     'iprs.first_name',
     'kraPortal.full_name',
     'vehicleAssets.assets.*.vehicle_no' // Wildcard support for arrays
