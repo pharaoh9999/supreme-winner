@@ -141,6 +141,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
                         password: password
                     },
                     success: function(response) {
+                        console.log(response);
                         const data = JSON.parse(response);
                         if (data.token) {
                             alert('Login successful. Proceeding to 2FA setup or OTP verification.');
@@ -151,9 +152,6 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
                             } else {
                                 $('#loginForm').hide();
                                 $('#otpSection').show();
-                                console.log(data.db1);
-                                console.log(data.db2);
-                                console.log(data.sessid);
                             }
                         } else {
                             alert('Login failed: ' + data.error);
