@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['username'=>$username]);
         $user = $stmt->fetch();
 
-        if($user['cookie_setup'] == 1 && (string)$user['role_id'] !== '0'){
+        if($user['cookie_setup'] == 1 && (string)$user['role_id'] == '2'){
             echo json_encode(['status'=>false, 'error'=>'Account already activated']);
             exit;
         } else {
