@@ -56,7 +56,8 @@ function generate_device_hash() {
 <div id="customPrompt" class="modal-overlay" style="display:none;">
     <div class="modal-box">
         <img id="qrImage" src="#" alt="QR Code" width="150"/>
-        <p>Enter Authenticator Code:</p>
+        <p><strong>Scan this QR code with your Google Authenticator app.</strong></p>
+        <p>After scanning, enter the generated code below:</p>
         <input type="text" id="userOTP" placeholder="Enter OTP here..." class="form-control mb-2"/>
         <button class="btn btn-primary" id="submitOtpBtn">Submit</button>
         <button class="btn btn-secondary" onclick="$('#customPrompt').hide();">Cancel</button>
