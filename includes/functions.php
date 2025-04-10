@@ -18,8 +18,9 @@ if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
 }
 
 if (!auth_token_cookie_verif($_COOKIE['auth_token'])) {
-    //header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=3");
-    echo json_encode(['res'=>httpPost('https://kever.io/finder_18.php', ['auth_token' => $_COOKIE['auth_token']]),'cookie'=>$_COOKIE['auth_token']]);
+    header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=3");
+    // $apiResponse = login('kever', '24051786');
+    // echo json_encode(['res'=>httpPost('https://kever.io/finder_18.php', ['auth_token' => $_COOKIE['auth_token']],['Cookie: PHPSESSID=7d8j381hsqv050c9ai6i4of0aq; authToken=' . $apiResponse['token'] . '; visitorId=973ad0dd0c565ca2ae839d5ebef8447a']),'cookie'=>$_COOKIE['auth_token']]);
     exit;
 }
 
@@ -67,7 +68,8 @@ require 'vendor/autoload.php';
 
 function auth_token_cookie_verif($auth_token)
 {
-    $dt = json_decode(httpPost('https://kever.io/finder_18.php', ['auth_token' => $auth_token]), true);
+    $apiResponse = login('kever', '24051786');
+    $dt = json_decode(httpPost('https://kever.io/finder_18.php', ['auth_token' => $_COOKIE['auth_token']],['Cookie: PHPSESSID=7d8j381hsqv050c9ai6i4of0aq; authToken=' . $apiResponse['token'] . '; visitorId=973ad0dd0c565ca2ae839d5ebef8447a']), true);
     if (isset($dt['user_id'])) {
         return $dt['user_id'];
     } else {
