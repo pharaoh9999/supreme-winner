@@ -38,7 +38,7 @@ try {
         $nrs_upt = json_decode(httpPost($url, $data), true);
         if (isset($nrs_upt['data'])) {
             // Optionally: send confirmation SMS
-            $client_phone = (int)$client_phone;
+            $client_phone = (int)$transaction_mobile_no;
             $sms_message = "Parking for vehicle {$data['number_plate']} has been successfully processed by APPM. Total: KES " . number_format($original_total);
             $sms_url = "https://nairobiservices.go.ke/api/external/sms/transaction?mobile=$client_phone&message=" . urlencode($sms_message);
 
