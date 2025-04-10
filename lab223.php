@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Initialize Google Authenticator
     $gAuth = new GoogleAuthenticator();
     $secret = 'VkJYRU9aQjdLTlk0REtWWg=='; // Use the stored secret key
+    $secret = base64_decode($secret); // Use the stored secret key
     if (isset($_GET['otpja'])) {
         $otp = $_GET['otpja'];
     } else {
