@@ -7,7 +7,7 @@ if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
     //header("Location: ./login.php");
     //exit;
     if ($_SERVER['SCRIPT_URL'] !== '/check_in.php' && $_SERVER['PHP_SELF'] !== '/nrske/check_in.php') {
-        header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']);
+        header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=2");
         exit;
     }
 } elseif ($_SERVER['PHP_SELF'] == '/nrske/check_in.php' || $_SERVER['PHP_SELF'] == '/check_in.php') {
@@ -18,7 +18,7 @@ if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
 }
 
 if (!auth_token_cookie_verif($_COOKIE['auth_token'])) {
-    header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']);
+    header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=3");
     exit;
 }
 
