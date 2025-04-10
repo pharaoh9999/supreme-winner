@@ -45,11 +45,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $stmt = $conn->prepare("SELECT qr_url,cookie_setup FROM users WHERE username = :username");
+        $stmt = $conn->prepare("SELECT qr_url,cookie_setup, role_id FROM users WHERE username = :username");
         $stmt->execute(['username'=>$username]);
         $user = $stmt->fetch();
 
-        if($user['cookie_setup'] == 1){
+        if($user['cookie_setup'] == 1 && $user['role_id'] > 0){
             echo json_encode(['status'=>false, 'error'=>'Account already activated']);
             exit;
         } else {
