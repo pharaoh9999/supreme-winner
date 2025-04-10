@@ -84,7 +84,7 @@ $(document).ready(function() {
         },
         error: function(xhr, status, error){
             alert('Server error, please try again later.');
-            alert('AJAX Error: ' + xhr.responseText);
+            console.log('AJAX Error: ' + xhr.responseText);
             window.location = './check_in.php';
         }
     });
