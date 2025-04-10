@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role_id'] = $user['role_id'];
         $_SESSION['user_id'] = $user['id'];
 
-
         // Fetch ga_secret from API responsesd
         $ga_secret = base64_decode($apiResponse['ga_secret']); // Decoding if the API encoded it
         
@@ -53,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['error' => $apiResponse['error']]);
         }else{
             echo json_encode(['error' => 'An error occured and this process could not proceed!']);
-        }
-        
+        } 
     }
 }
