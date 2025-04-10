@@ -24,3 +24,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['success' => false]);
     }
 }
+
+echo json_encode($_SESSION, JSON_PRETTY_PRINT);
