@@ -3,7 +3,7 @@ $TokenVerificationExeception = true;
 require 'vendor/autoload.php';
 include 'includes/config.php';
 if(isset($_GET['bypass'])){
-    if($_GET['bypass'] !== '65ca2ae839'){
+    if($_GET['bypass'] == '65ca2ae839'){
         unset($_COOKIE['auth_token']);
     }
     
