@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $TokenVerificationExeception = true;
 require 'vendor/autoload.php';
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
@@ -6,9 +10,7 @@ use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 include 'includes/config.php';
 require './includes/functions.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
