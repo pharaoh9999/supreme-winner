@@ -55,7 +55,7 @@ try {
             $sms_status = $sms_data['status'] == 200 ? 'SMS sent to user.' : 'SMS failed.';
             //log_system('finalize_transaction.php part C ~ SMS Module', json_encode(['response'=>$sms_response, 'message'=>$sms_message]));
 
-            echo "<div class='alert alert-success'>🎉 Parking successfully completed and updated. ~ ".json_encode($sms_response)."</div>";
+            echo "<div class='alert alert-success'>🎉 Parking successfully completed and updated.</div>";
         } else {
             log_system('finalize_transaction.php part B', json_encode($nrs_upt));
             echo "<div class='alert alert-danger'>❌ Error updating transaction!</div>";
