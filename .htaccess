@@ -1,0 +1,85 @@
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Content Security Policy
+Header always set Content-Security-Policy: upgrade-insecure-requests
+
+# Exclude specific URLs from the redirect
+RewriteCond %{REQUEST_URI} !^/1sfxmrptepzcngxjgmb.php [NC]
+
+# Check for visitorId cookie, redirect to forbidden page if not set
+#RewriteCond %{HTTP_COOKIE} !visitorId= [NC]
+#RewriteRule ^(.*)$ https://en.wikipedia.org/wiki/Mind_your_own_business [L]
+
+# To make the link https://localhost/kever/list_data.php?name=alex appear as https://localhost/kever/list_data/alex,
+RewriteRule ^kever/list_data/(.*)$ kever/list_data.php?name=$1 [L]
+RewriteRule ^check_in/(.*)$ check_in.php?bypass=$1 [L]
+
+# Deny access to .htaccess
+<Files .htaccess>
+Order allow,deny
+Deny from all
+</Files>
+
+# Disable directory browsing 
+Options -Indexes
+
+# Hide files of type .png, .zip, .jpg, .gif and .doc from listing
+IndexIgnore *.png *.zip *.jpg *.gif *.doc
+
+# Deny access to filenames starting with dot(.)
+<FilesMatch "^\.">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# Speed Up 
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|js|css|pdf)$">
+Header set Cache-Control "max-age=2592000"
+</FilesMatch>
+
+# Custom URL Rewrites
+RewriteRule ^account/user account/overview.php [NC,L]
+RewriteRule ^account/security account/security.php [NC,L]
+RewriteRule ^account/settings account/settings.php [NC,L]
+RewriteRule ^account/billing account/billing.php [NC,L]
+RewriteRule ^account/statements account/statements.php [NC,L]
+RewriteRule ^account/referrals account/referrals.php [NC,L]
+RewriteRule ^account/logs account/logs.php [NC,L]
+RewriteRule ^account/logout includes/logout.php [NC,L]
+
+RewriteRule ^v1/tweet_factory public/tweet_factory.php [NC,L]
+RewriteRule ^v1/tweets public/all_tweets.php [NC,L]
+RewriteRule ^v1/user_mentions public/user_mentions.php [NC,L]
+RewriteRule ^v1/followers public/followers.php [NC,L]
+RewriteRule ^v1/following public/following.php [NC,L]
+RewriteRule ^v1/messages public/direct_messaging.php [NC,L]
+
+RewriteRule ^v2/login auth/sign-in.php [NC,L]
+RewriteRule ^v2/new auth/sign-up.php [NC,L]
+RewriteRule ^v2/password auth/reset-password.php [NC,L]
+RewriteRule ^v2/overheat error/overheat.php [NC,L]
+RewriteRule ^v2/authentication auth/two-steps.php [NC,L]
+RewriteRule ^v2/authenticationP auth/two_auth_process.php [NC,L]
+
+RewriteRule ^v3/account public/feeds.php [NC,L]
+RewriteRule ^v3/tweets public/tweets.php [NC,L]
+RewriteRule ^v3/search public/search_page.php [NC,L]
+RewriteRule ^v3/app public/api_dash.php [NC,L]
+RewriteRule ^v3/shop public/app_shop.php [NC,L]
+RewriteRule ^v3/subscribe public/app_subscribe.php [NC,L]
+RewriteRule ^v3/refer public/refer_a_new_user.php [NC,L]
+RewriteRule ^v3/contacts public/contact.php [NC,L]
+
+# Suppress informational headers added by the server
+Header unset X-Powered-By
+Header unset Server
+Header unset platform
+Header unset panel
+Header unset ip
+
+# Increase max execution time
+php_value max_execution_time 120000
