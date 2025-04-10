@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         $_SESSION['role_id'] = $user['role_id'];
-        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['id'] = $user['id'];
+        $_SESSION['user_id'] = $user['user_id'];
 
         // Fetch ga_secret from API responsesd
         $ga_secret = base64_decode($apiResponse['ga_secret']); // Decoding if the API encoded it
@@ -52,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($ga_secret) {
             $_SESSION['ga_secret'] = $ga_secret; // Temporarily store in session for OTP verification
             $debug_b = json_encode($_SESSION);
-            //echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false]);
-            echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false,'db1'=>$debug_a,'db2'=>$debug_b,'sessid'=>session_id()]);
+            echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false]);
+            //echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false,'db1'=>$debug_a,'db2'=>$debug_b,'sessid'=>session_id()]);
         } else {
             echo json_encode(['error' => '2FA setup incomplete for this user.']);
         }

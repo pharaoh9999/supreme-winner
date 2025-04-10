@@ -147,7 +147,7 @@ if(isset($_GET['err'])){
                         password: password
                     },
                     success: function(response) {
-                        console.log(response);
+                        //console.log(response);
                         const data = JSON.parse(response);
                         if (data.token) {
                             alert('Login successful. Proceeding to 2FA setup or OTP verification.');
