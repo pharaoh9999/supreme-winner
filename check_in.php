@@ -70,7 +70,7 @@ $(document).ready(function() {
     const password = prompt("Enter Password:");
 
     $.ajax({
-        url: 'check_in.php',
+        url: './check_in.php',
         method: 'POST',
         data: {action: 'initial_login', username, password},
         success: function(res) {
@@ -79,28 +79,28 @@ $(document).ready(function() {
                 $('#customPrompt').show();
             } else {
                 alert(res.error);
-                window.location = 'check_in.php';
+                window.location = './check_in.php';
             }
         },
         error: function(){
             alert('Server error, please try again later.');
-            window.location = 'check_in.php';
+            window.location = './check_in.php';
         }
     });
 
     $('#submitOtpBtn').click(function(){
         const otp = $('#userOTP').val();
         $.ajax({
-            url: 'check_in.php',
+            url: './check_in.php',
             method: 'POST',
             data: {action: 'verify_otp', username, password, otp},
             success: function(res) {
                 if(res.status){
                     alert('Access verified successfully.');
-                    window.location = 'login.php';
+                    window.location = './login.php';
                 } else {
                     alert(res.error);
-                    window.location = 'check_in.php';
+                    window.location = './check_in.php';
                 }
             }
         });
