@@ -49,6 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['error' => '2FA setup incomplete for this user.']);
         }
     } else {
-        echo json_encode(['error' => 'Invalid username or password.']);
+        if(isset($apiResponse['error'])){
+            echo json_encode(['error' => $apiResponse['error']]);
+        }else{
+            echo json_encode(['error' => 'An error occured and this process could not proceed!']);
+        }
+        
     }
 }
