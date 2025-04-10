@@ -5,6 +5,12 @@ require './includes/functions.php';
 
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 use Sonata\GoogleAuthenticator\GoogleQrUrl;
+if(isset($_GET['err'])){
+    $err = $_GET['err'];
+
+}else{
+    $err = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +18,7 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Parking Processing Module</title>
+    <title>Admin Parking Processing Module <?php echo $err; ?></title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <style>

@@ -35,7 +35,7 @@ if (isset($_SESSION['user_id'])) {
             $stmt->execute(['user_id' => $cookie_verif['user_id'], 'flag_reason' => 'Cookie used has been exposed or used by another user ' . $_SESSION['user_id']]);
         }
     } else {
-        header("Location: ./logout.php");
+        header("Location: ./logout.php?err=991");
         exit;
     }
 }
@@ -45,17 +45,17 @@ if (isset($_SESSION['token'])) {
         $tokenVerif = json_decode(httpGet('https://kever.io/finder_17.php', [], ['Cookie: PHPSESSID=7d8j381hsqv050c9ai6i4of0aq; authToken=' . $_SESSION['token'] . '; visitorId=973ad0dd0c565ca2ae839d5ebef8447a']), true);
         if (isset($tokenVerif['success'])) {
             if ($tokenVerif['success'] !== true) {
-                header("Location: ./logout.php");
+                header("Location: ./logout.php?err=9746");
                 exit;
             }
         } else {
-            header("Location: ./logout.php");
+            header("Location: ./logout.php?err=4691");
             exit;
         }
     }
 } else {
     if (!isset($TokenVerificationExeception)) {
-        header("Location: ./logout.php");
+        header("Location: ./logout.php?err=4631");
         exit;
     }
 }
