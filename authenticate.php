@@ -2,6 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+$debug_a = json_encode($_SESSION);
 
 $TokenVerificationExeception = true;
 require 'vendor/autoload.php';
@@ -50,7 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Step 2: Verify that ga_secret exists
         if ($ga_secret) {
             $_SESSION['ga_secret'] = $ga_secret; // Temporarily store in session for OTP verification
-            echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false]);
+            $debug_b = json_encode($_SESSION);
+            //echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false]);
+            echo json_encode(['token' => $apiResponse['token'], 'ga_setup_required' => false,'db1'=>$debug_a,'db2'=>$debug_b,'sessid'=>session_id()]);
         } else {
             echo json_encode(['error' => '2FA setup incomplete for this user.']);
         }

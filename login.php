@@ -151,6 +151,9 @@ use Sonata\GoogleAuthenticator\GoogleQrUrl;
                             } else {
                                 $('#loginForm').hide();
                                 $('#otpSection').show();
+                                console.log(data.db1);
+                                console.log(data.db2);
+                                console.log(data.sessid);
                             }
                         } else {
                             alert('Login failed: ' + data.error);
