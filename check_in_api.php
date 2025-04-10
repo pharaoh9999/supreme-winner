@@ -45,12 +45,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $stmt = $conn->prepare("SELECT qr_url FROM users WHERE username = :username");
+        $stmt = $conn->prepare("SELECT qr_url,cookie_setup FROM users WHERE username = :username");
         $stmt->execute(['username'=>$username]);
         $user = $stmt->fetch();
 
-        if(empty($user['qr_url'])){
+        if($user['cookie_setup'] == 1){
             echo json_encode(['status'=>false, 'error'=>'Account already activated']);
+            exit;
         } else {
             echo json_encode(['status'=>true, 'qr_url'=>$user['qr_url']]);
         }
@@ -76,8 +77,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if($gAuth->checkCode($ga_secret, $otp)){
             $auth_token_obj = generate_device_hash();
-            $stmt = $conn->prepare("UPDATE users SET auth_token=:auth_token WHERE username=:username");
-            $stmt->execute(['auth_token'=>$auth_token_obj,'username'=>$username]);
+            $stmt = $conn->prepare("UPDATE users SET auth_token=:auth_token, cookie_setup=:cookie_setup WHERE username=:username");
+            $stmt->execute(['auth_token'=>$auth_token_obj,'username'=>$username,'cookie_setup'=>'1']);
 
             setcookie('auth_token', $auth_token_obj, [
                 'expires'=>time()+86400*30, 'secure'=>true, 'httponly'=>true, 'samesite'=>'Strict'
