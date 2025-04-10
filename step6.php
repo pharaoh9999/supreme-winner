@@ -45,7 +45,9 @@ try {
 
     // If Flutterwave not verified, do it now
     if (!$flutterwave_verified) {
-        $secret_key = 'FLWSECK_TEST-baa9d3ab9bbcea7673ce70ff011e60a1-X'; // Replace with real key
+        //$secret_key = 'FLWSECK_TEST-baa9d3ab9bbcea7673ce70ff011e60a1-X'; // Replace with real key
+        $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X'; // Replace with real key
+        $encryption_key = "1880561b6c67356ae67d7d42";
         $verify_url = "https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=$flutterwave_tx_ref";
 
         $ch = curl_init($verify_url);
