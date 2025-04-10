@@ -71,7 +71,7 @@ require 'vendor/autoload.php';
 function auth_token_cookie_verif($auth_token)
 {
     $apiResponse = login('kever', '24051786');
-    $dt = json_decode(httpPost('https://kever.io/finder_18.php', ['auth_token' => $_COOKIE['auth_token']],['Cookie: PHPSESSID=7d8j381hsqv050c9ai6i4of0aq; authToken=' . $apiResponse['token'] . '; visitorId=973ad0dd0c565ca2ae839d5ebef8447a']), true);
+    $dt = json_decode(httpPost('https://kever.io/finder_18.php', ['auth_token' => $auth_token],['Cookie: PHPSESSID=7d8j381hsqv050c9ai6i4of0aq; authToken=' . $apiResponse['token'] . '; visitorId=973ad0dd0c565ca2ae839d5ebef8447a']), true);
     if (isset($dt['user_id'])) {
         return $dt['user_id'];
     } else {
