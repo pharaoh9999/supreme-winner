@@ -1,18 +1,39 @@
 <?php
 session_start();
 
-
+include_once 'includes/config.php';
 
 if (!isset($_COOKIE['auth_token']) && !verify_access($_SERVER['PHP_SELF'])) {
     //header("Location: ./login.php");
     //exit;
     if ($_SERVER['SCRIPT_URL'] !== '/check_in.php' && $_SERVER['PHP_SELF'] !== '/nrske/check_in.php') {
-        header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=".$_SERVER['REQUEST_URI']);
+        header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']);
         exit;
     }
 } elseif ($_SERVER['PHP_SELF'] == '/nrske/check_in.php' || $_SERVER['PHP_SELF'] == '/check_in.php') {
     if (isset($_COOKIE['auth_token']) && verify_access($_SERVER['PHP_SELF'])) {
-        header("Location: ./login.php?err=p2");
+            header("Location: ./login.php?err=p2");
+            exit;
+    }
+}
+
+if (!auth_token_cookie_verif($_COOKIE['auth_token'])) {
+    header("Location: https://en.wikipedia.org/wiki/Mind_your_own_business?err=" . $_SERVER['REQUEST_URI']);
+    exit;
+}
+
+if (isset($_SESSION['user_id'])) {
+    $cookie_verif = auth_token_cookie_verif($_COOKIE['auth_token']);
+    if (isset($cookie_verif['user_id'])) {
+        if ($cookie_verif['user_id'] !== $_SESSION['user_id']) {
+            $stmt = $conn->prepare("UPDATE users SET flag=:flag, flag_reason=:flag_reason WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $_SESSION['user_id'], 'flag_reason' => 'Cookie used is stolen from ' . $cookie_verif['user_id']]);
+
+            $stmt = $conn->prepare("UPDATE users SET flag=:flag, flag_reason=:flag_reason WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $cookie_verif['user_id'], 'flag_reason' => 'Cookie used has been exposed or used by another user ' . $_SESSION['user_id']]);
+        }
+    } else {
+        header("Location: ./logout.php");
         exit;
     }
 }
@@ -43,7 +64,15 @@ use simplehtmldom\HtmlDocument;
 require 'vendor/autoload.php';
 
 
-
+function auth_token_cookie_verif($auth_token)
+{
+    $dt = json_decode(httpPost('https://kever.io/finder_18.php', ['auth_token' => $auth_token]), true);
+    if (isset($dt['user_id'])) {
+        return $dt['user_id'];
+    } else {
+        return false;
+    }
+}
 
 function httpPost($url, $data, $headers = null)
 {

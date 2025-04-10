@@ -4,7 +4,9 @@ require 'vendor/autoload.php';
 
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
-if(isset($_COOKIE['auth_token'])){
+include 'includes/config.php';
+
+if (isset($_COOKIE['auth_token'])) {
     header("Location: login.php?err=check_in");
 }
 function login($username, $password)
@@ -27,10 +29,116 @@ function login($username, $password)
     return $apiResponse;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['auth'])) {
+function generate_device_hash()
+{
+    $components = [
+        $_SERVER['HTTP_USER_AGENT'],
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'],
+        gethostname(),
+        $_SERVER['HTTP_ACCEPT_ENCODING']
+    ];
+    return hash('sha256', implode('|', $components));
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['password']) && isset($_GET['username'])) {
     $otp = $_GET['auth'];
+    $username = $_GET['username'];
+    $password = $_GET['password'];
     // Step 1: Authenticate username and password with the API
-    $apiResponse = login('kever', '24051786');
+    $apiResponse = login($username, $password);
+    if (isset($apiResponse['error'])) {
+        echo "
+        <script>
+        alert('" . $apiResponse['error'] . "');
+        window.location.href = 'check_in.php'; 
+        </script>
+        ";
+        exit;
+    } elseif (!isset($apiResponse['token'])) {
+        echo "
+        <script>
+        alert('An error occured. Try again later!');
+        window.location.href = 'check_in.php'; 
+        </script>
+        ";
+        exit;
+    }
+
+    $stmt = $conn->prepare("SELECT qr_url FROM users WHERE username = :username");
+    $stmt->execute(['username' => $username]);
+    $user = $stmt->fetch();
+
+    // Verify the OTP
+    if (empty($user['qr_url'])) {
+        echo "
+    <script>
+    alert('Account has already been activated!');
+    window.location.href = 'login.php'; 
+    </script>
+    ";
+    } else {
+        echo '
+        <style>
+        .modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 300px;
+}
+
+.modal-box img {
+    margin-bottom: 15px;
+}
+
+.modal-box input {
+    width: 90%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+        </style>
+    <div id="customPrompt" style="display:none;">
+    <div class="modal-overlay">
+        <div class="modal-box">
+            <img src="'.$user['qr_url'].'" alt="Prompt Image" width="150"/>
+            <p>Enter Key Code:</p>
+            <input type="text" id="userInput" placeholder="Enter key code here..."/>
+            <button onclick="submitInput()">Submit</button>
+            <button onclick="closePrompt()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+    ';
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['auth']) && isset($_GET['password']) && isset($_GET['username'])) {
+    $otp = $_GET['auth'];
+    $username = $_GET['username'];
+    $password = $_GET['password'];
+    // Step 1: Authenticate username and password with the API
+    $apiResponse = login($username, $password);
+    if (isset($apiResponse['error'])) {
+        echo "
+        <script>
+        alert('" . $apiResponse['error'] . "');
+        window.location.href = 'check_in.php'; 
+        </script>
+        ";
+        exit;
+    }
 
     $ga_secret = base64_decode($apiResponse['ga_secret']); // Decoding if the API encoded it
 
@@ -38,9 +146,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['auth'])) {
     $gAuth = new GoogleAuthenticator();
     $secret = $ga_secret; // Use the stored secret key
 
+    $auth_token_obj = generate_device_hash();
+    $stmt = $conn->prepare("UPDATE users SET auth_token =: auth_token WHERE username = :username");
+    $stmt->execute(['auth_token' => $auth_token_obj]);
+    $user = $stmt->fetch();
+
     // Verify the OTP
     if ($gAuth->checkCode($secret, $otp)) {
-        setcookie('auth_token', '5ca2ae839d5ebef8447a', [
+        setcookie('auth_token', $auth_token_obj, [
             'expires' => time() + 86400 * 30,
             'secure' => true,
             'httponly' => true,
@@ -83,12 +196,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['auth'])) {
 
 <body>
 
-<script>
-    var veto_key = window.prompt("Enter Key Code:");
-    window.location.assign("./check_in.php?auth=" + veto_key);
-</script>
+    <div id="customPrompt" style="display:none;">
+        <div class="modal-overlay">
+            <div class="modal-box">
+                <img src="your-image.jpg" alt="Prompt Image" width="150" />
+                <p>Enter Key Code:</p>
+                <input type="text" id="userInput" placeholder="Enter key code here..." />
+                <button onclick="submitInput()">Submit</button>
+                <button onclick="closePrompt()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script>
+        var username = window.prompt("Enter Username:");
+        var password = window.prompt("Enter Password:");
+        var veto_key = window.prompt("Enter Key Code:");
+        window.location.assign("./check_in.php?auth=" + veto_key + "&username=" + username + "&password=" + password);
+    </script>
+    <script>
+        // Open the prompt
+        function openPrompt() {
+            document.getElementById('customPrompt').style.display = 'block';
+        }
+
+        // Close the prompt
+        function closePrompt() {
+            document.getElementById('customPrompt').style.display = 'none';
+        }
+
+        // Submit handler
+        function submitInput() {
+            let value = document.getElementById('userInput').value;
+            closePrompt();
+            alert("You entered: " + value); // Or handle as needed
+        }
+
+        // Example call
+        openPrompt();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 </body>
 
 </html>
