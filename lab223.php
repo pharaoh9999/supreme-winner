@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     // Verify the OTP
     if ($gAuth->checkCode($secret, $otp)) {
-        $_SESSION['authenticated'] = true; // Mark the user as fully authenticated
+        //$_SESSION['authenticated'] = true; // Mark the user as fully authenticated
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false]);
