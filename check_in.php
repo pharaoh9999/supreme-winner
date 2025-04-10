@@ -84,6 +84,7 @@ $(document).ready(function() {
         },
         error: function(){
             alert('Server error, please try again later.');
+            window.location = 'check_in.php';
         }
     });
 
