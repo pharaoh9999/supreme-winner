@@ -16,7 +16,7 @@ if (
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['id'];
 $transaction_no = $_POST['transaction_no'];
 $original_amount = floatval($_POST['original_amount']);
 $penalty = floatval($_POST['penalty']);
