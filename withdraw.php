@@ -62,9 +62,14 @@ try {
     $result = json_decode($response, true);
 
     if (!isset($result['status']) || $result['status'] !== 'success') {
+        if (isset($result['message'])) {
+            $flw_message = $result['message'];
+        } else {
+            $flw_message = 'Flutterwave transfer failed.';
+        }
         echo json_encode([
             'success' => false,
-            'message' => 'Flutterwave transfer failed.',
+            'message' => $flw_message,
             'debug' => $result
         ]);
         exit;
