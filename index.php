@@ -13,6 +13,27 @@ require './includes/functions.php'; // Include IP whitelisting from config.php
 </head>
 <body class="bg-light">
 
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="index.php">Nairobi Parking</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="index.php">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="profile.php">Profile Dashboard</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
 <div class="container mt-5">
   <div class="card shadow p-4">
     <h4 class="mb-3">Admin Parking Processing Module</h4>
@@ -51,7 +72,6 @@ $(document).ready(function () {
     const zone_id = $("#zone").val();
     $("#step1Msg").html('<div class="text-info">Checking parking status...</div>');
 
-    // Proceed to step 2 with AJAX
     $.ajax({
       url: "step2.php",
       type: "POST",
