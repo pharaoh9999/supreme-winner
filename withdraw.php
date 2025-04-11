@@ -9,9 +9,19 @@ if (!isset($_POST['phone']) || !isset($_POST['amount'])) {
     echo json_encode(['success' => false, 'message' => 'Invalid request.']);
     exit;
 }
+if (!isset($_POST['beneficiary_name']) || !isset($_POST['beneficiary_name'])) {
+    echo json_encode(['success' => false, 'message' => 'Beneficiary name needed.']);
+    exit;
+}
+if (!isset($_POST['beneficiary_phone']) || !isset($_POST['beneficiary_phone'])) {
+    echo json_encode(['success' => false, 'message' => 'Beneficiary phone number needed.']);
+    exit;
+}
 
+$beneficiary_phone = preg_replace('/[^0-9]/', '', $_POST['beneficiary_phone']);
 $phone = preg_replace('/[^0-9]/', '', $_POST['phone']);
 $amount = floatval($_POST['amount']);
+$beneficiary_name = $_POST['beneficiary_name'];
 
 if (strlen($phone) !== 12 || substr($phone, 0, 3) !== '254' || $amount < 10) {
     echo json_encode(['success' => false, 'message' => 'Invalid withdrawal request.']);
@@ -38,9 +48,10 @@ try {
     $ch = curl_init('https://api.flutterwave.com/v3/transfers');
     $payload = [
         'account_bank' => 'MPS',
-        'account_number' => $phone,
+        'account_number' => $beneficiary_phone,
         'amount' => $amount,
         'currency' => 'KES',
+        'beneficiary_name' => $beneficiary_name,
         'reference' => $reference,
         'callback_url' => 'https://nairobi.autos/finalize_withdrawal.php',
         'narration' => 'Withdrawal - Nairobi Parking Module'
