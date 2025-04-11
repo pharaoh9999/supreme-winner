@@ -100,7 +100,7 @@ if (!$mpesa_account_number) {
     // Initiate transfer
     $transfer_data = [
         'source' => 'balance',
-        'amount' => intval($amount), // Paystack uses kobo
+        'amount' => intval(round($amount, 2)), // Paystack uses kobo
         'recipient' => $recipient_code,
         'reason' => 'Withdrawal - Nairobi Parking Module',
         'reference' => $reference,
