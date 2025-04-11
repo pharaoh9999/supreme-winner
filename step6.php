@@ -15,6 +15,12 @@ if (
     exit;
 }
 
+if (!isset($_POST['paystack_transaction_id'])) {
+  echo "Missing Paystack transaction ID.";
+  exit;
+}
+
+$paystack_transaction_id = $_POST['paystack_transaction_id'];
 $transaction_no = $_POST['transaction_no'];
 $client_phone = $_POST['client_phone'];
 $number_plate = strtoupper(trim($_POST['number_plate']));
@@ -44,7 +50,9 @@ try {
 
     if (!$flutterwave_verified) {
         $secret_key = 'sk_live_7151dcc2790def66d1327a4b06ec9ed3efa4dcfb';
-        $verify_url = "https://api.paystack.co/transaction/verify/" . urlencode($paystack_tx_ref);
+        $verify_url = "https://api.paystack.co/transaction/verify/" . urlencode($paystack_transaction_id);
+
+
 
         $ch = curl_init($verify_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

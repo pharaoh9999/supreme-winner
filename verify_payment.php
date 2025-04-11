@@ -49,6 +49,7 @@ try {
 
 <form id="continueStep6" method="POST" action="step6.php">
     <input type="hidden" name="flutterwave_tx_ref" value="<?php echo htmlspecialchars($tx_ref); ?>">
+    <input type="hidden" name="paystack_transaction_id" value="<?php echo htmlspecialchars($transaction_id); ?>">
     <input type="hidden" name="transaction_no" value="<?php echo htmlspecialchars($transaction_no); ?>">
     <input type="hidden" name="client_phone" value="<?php echo htmlspecialchars($client_phone); ?>">
     <input type="hidden" name="payable" value="<?php echo htmlspecialchars($payable); ?>">
