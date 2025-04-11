@@ -80,7 +80,7 @@ try {
         }
         echo json_encode([
             'success' => false,
-            'message' => $flw_message,
+            'message' => 'FLW: '.$flw_message,
             'debug' => $result
         ]);
         exit;
