@@ -2,14 +2,15 @@
 session_start();
 require_once 'includes/conn.php';
 
-if (!isset($_GET['tx_ref']) || !isset($_GET['status'])) {
-    die("Invalid Flutterwave redirect. Missing data.");
+if (!isset($_GET['tx_ref']) || !isset($_GET['status']) || !isset($_GET['transaction_id'])) {
+    die("Invalid redirect. Missing data.");
 }
 
 $tx_ref = $_GET['tx_ref'];
 $status = strtolower($_GET['status']);
+$transaction_id = $_GET['transaction_id'];
 
-if ($status !== 'successful') {
+if ($status !== 'success') {
     echo "<div style='margin: 2rem; font-family: sans-serif;'>
             <h3 style='color: red;'>❌ Payment Failed or Cancelled</h3>
             <p>Transaction Reference: <strong>$tx_ref</strong></p>
@@ -19,7 +20,6 @@ if ($status !== 'successful') {
     exit;
 }
 
-// Look up transaction info from DB using tx_ref
 try {
     $pdo = new AutoConn();
     $conn = $pdo->open();

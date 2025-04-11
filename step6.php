@@ -1,7 +1,6 @@
 <?php
-require './includes/config.php'; // Include IP whitelisting from config.php
-require './includes/functions.php'; // Include IP whitelisting from config.php
-
+require './includes/config.php';
+require './includes/functions.php';
 require_once 'includes/conn.php';
 
 if (
@@ -21,7 +20,7 @@ $client_phone = $_POST['client_phone'];
 $number_plate = strtoupper(trim($_POST['number_plate']));
 $payable = floatval($_POST['payable']);
 $random_number = floatval($_POST['random_number']);
-$flutterwave_tx_ref = trim($_POST['flutterwave_tx_ref']);
+$paystack_tx_ref = trim($_POST['flutterwave_tx_ref']);
 
 try {
     $pdo = new AutoConn();
@@ -43,12 +42,9 @@ try {
     $parking_duration = $data['parking_duration'];
     $original_total = floatval($data['total']);
 
-    // If Flutterwave not verified, do it now
     if (!$flutterwave_verified) {
-        //$secret_key = 'FLWSECK_TEST-baa9d3ab9bbcea7673ce70ff011e60a1-X'; // Replace with real key
-        $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X'; // Replace with real key
-        $encryption_key = "1880561b6c67356ae67d7d42";
-        $verify_url = "https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=$flutterwave_tx_ref";
+        $secret_key = 'sk_test_ecd1a5358571ea23ab08b1b05fb90b5400aa29c4';
+        $verify_url = "https://api.paystack.co/transaction/verify/" . urlencode($paystack_tx_ref);
 
         $ch = curl_init($verify_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -59,50 +55,43 @@ try {
         curl_close($ch);
 
         $result = json_decode($response, true);
-        if (
-            !isset($result['status']) ||
-            $result['status'] !== 'success' ||
-            $result['data']['amount'] < $payable ||
-            $result['data']['currency'] !== 'KES'
-        ) {
-            echo "<div class='alert alert-danger'>Flutterwave payment verification failed or amount mismatch.</div>";
+        if (!isset($result['status']) || !$result['status'] || $result['data']['status'] !== 'success') {
+            echo "<div class='alert alert-danger'>❌ Paystack payment verification failed.</div>";
             exit;
-        } else {
-            // Update Nairobi API to 5
-            $update_payload = [
-                "transaction_no" => $transaction_no,
-                "amount" => (string)$random_number,
-                "bank_ref" => null,
-                "transaction_mobile_no" => $client_phone,
-                "mobile_number" => $client_phone,
-                "name" => ""
-            ];
-
-            $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/transaction/update");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
-            ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_payload));
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            $result = json_decode($response, true);
-
-            if (!isset($result['status']) || $result['status'] != 200) {
-                echo "Failed to update transaction to 5 bob.";
-                exit;
-            }
         }
 
         // Update DB to mark verified
         $update = $conn->prepare("UPDATE transactions SET flutterwave_verified = 1 WHERE transaction_no = ?");
         $update->execute([$transaction_no]);
+
+        // Update Nairobi API to set amount to 5
+        $update_payload = [
+            "transaction_no" => $transaction_no,
+            "amount" => (string)$random_number,
+            "bank_ref" => null,
+            "transaction_mobile_no" => $client_phone,
+            "mobile_number" => $client_phone,
+            "name" => ""
+        ];
+
+        $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/transaction/update");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Cookie: csrftoken=e5leC8rQ9Nzggc04qM4vBdW36LnQTqfM'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_payload));
+        $update_response = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($update_response, true);
+        if (!isset($result['status']) || $result['status'] != 200) {
+            echo "Failed to update transaction to 5 bob.";
+            exit;
+        }
     }
 
-    // Clear penalty if needed
     if ($penalty > 0) {
         $boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
         $penalty_payload = "--$boundary\r\n";
@@ -122,17 +111,17 @@ try {
         curl_close($ch);
     }
 
-    // Trigger Pay API with KES 5
+    // Trigger Pay API
     $pay_payload = [
         "number_plate" => $number_plate,
-        "parking_duration" => "daily",
+        "parking_duration" => $parking_duration,
         "parking_zone" => $parking_zone,
         "vehicle_type" => $vehicle_type,
         "amount" => $random_number,
         "penalty" => 0,
         "total" => $random_number,
         "mobile_number" => $client_phone,
-        "parkingType" => "daily"
+        "parkingType" => $parking_duration
     ];
 
     $ch = curl_init("https://nairobiservices.go.ke/api/parking/parking/daily/pay");
@@ -147,9 +136,9 @@ try {
     curl_close($ch);
 
     $stk_verif = json_decode($pay_response, true);
-    if(isset($stk_verif['data']['transaction_no'])){
-      $stk_message = '<h4 class="mb-3 text-success">✅ STK Push Sent</h4>';
-    }else{
+    if (isset($stk_verif['data']['transaction_no'])) {
+        $stk_message = '<h4 class="mb-3 text-success">✅ STK Push Sent</h4>';
+    } else {
         $stk_message = '<h4 class="mb-3 text-danger">❌ STK Push Not Sent!</h4>';
     }
 
@@ -183,7 +172,7 @@ try {
     <div id="retryBox" class="d-none mt-4">
       <div class="alert alert-warning">Payment not detected after 2 minutes.</div>
       <form method="POST" action="step6.php">
-        <input type="hidden" name="flutterwave_tx_ref" value="<?php echo htmlspecialchars($flutterwave_tx_ref); ?>">
+        <input type="hidden" name="flutterwave_tx_ref" value="<?php echo htmlspecialchars($paystack_tx_ref); ?>">
         <input type="hidden" name="transaction_no" value="<?php echo htmlspecialchars($transaction_no); ?>">
         <input type="hidden" name="client_phone" value="<?php echo htmlspecialchars($client_phone); ?>">
         <input type="hidden" name="payable" value="<?php echo htmlspecialchars($payable); ?>">
@@ -202,8 +191,7 @@ try {
 
 <script>
 let attempts = 0;
-const maxAttempts = 24; // 2 minutes (24 x 5s)
-
+const maxAttempts = 24;
 function checkStatus() {
   attempts++;
   $.get("check_payment.php?plate=<?php echo $number_plate; ?>", function(data) {
@@ -218,7 +206,6 @@ function checkStatus() {
     }
   });
 }
-
 function finalizeTransaction() {
   $.post("finalize_transaction.php", {
     transaction_no: "<?php echo $transaction_no; ?>",
@@ -227,7 +214,6 @@ function finalizeTransaction() {
     $('#finalBox').html(response).removeClass('d-none');
   });
 }
-
 $(document).ready(function () {
   setTimeout(checkStatus, 5000);
 });

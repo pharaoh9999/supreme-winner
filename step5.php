@@ -1,7 +1,6 @@
 <?php
-require './includes/config.php'; // Include IP whitelisting from config.php
-require './includes/functions.php'; // Include IP whitelisting from config.php
-
+require './includes/config.php';
+require './includes/functions.php';
 require_once 'includes/conn.php';
 
 if (
@@ -31,28 +30,26 @@ if (strlen($client_phone) != 12 || substr($client_phone, 0, 3) !== "254") {
     exit;
 }
 
-// 🔧 Additional values needed for tracking
 $parking_zone = $_POST['parking_zone'] ?? 2;
 $vehicle_type = $_POST['vehicle_type'] ?? 'S.WAGON';
 $parking_duration = 'daily';
 $random_number = mt_rand(5, 20);
 
-// Calculate payable amount: (total / 2) - 5 + broker_fee
 $new_payable = (($total / 2) - $random_number) + $broker_fee;
 
 try {
     $pdo = new AutoConn();
     $conn = $pdo->open();
 
-    // Check if Flutterwave was already paid
     $stmt = $conn->prepare("SELECT flutterwave_verified, tx_ref, user_id FROM transactions WHERE transaction_no = ? LIMIT 1");
     $stmt->execute([$transaction_no]);
     $row = $stmt->fetch();
+
     if ($row && $row['flutterwave_verified'] == 1) {
-        if($row['user_id'] != $user_id){
+        if ($row['user_id'] != $user_id) {
             echo 'This transaction has matured under a different attendant. Contact support for further assistance!';
-        }else{
-             echo '
+        } else {
+            echo '
             <form id="continueStep6" method="POST" action="step6.php">
                 <input type="hidden" name="flutterwave_tx_ref" value="'.htmlspecialchars($row['tx_ref']).'">
                 <input type="hidden" name="transaction_no" value="'.htmlspecialchars($transaction_no).'">
@@ -64,30 +61,26 @@ try {
             </form>
             <script>
               document.getElementById("continueStep6").submit();
-            </script>
-        ';
-       
-        }  
-         exit;
+            </script>';
+        }
+        exit;
     }
-    // Generate tx_ref
-    $tx_ref = "NRS-APPM-" . uniqid();
- 
 
-    // Save or update transaction with extra fields
+    $tx_ref = "NRS-APPM-" . uniqid();
+
     $stmt = $conn->prepare("
         INSERT INTO transactions (
             transaction_no, number_plate, original_amount, penalty, total,
             broker_fee, client_phone, payable, tx_ref, amount, status,
             flutterwave_verified, zone_id, vehicle_type, parking_duration, user_id, created_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ".$random_number.", 'initiated', 0, ?, ?, ?, ?, NOW())
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, {$random_number}, 'initiated', 0, ?, ?, ?, ?, NOW())
         ON DUPLICATE KEY UPDATE
             broker_fee = VALUES(broker_fee),
             client_phone = VALUES(client_phone),
             payable = VALUES(payable),
             tx_ref = VALUES(tx_ref),
-            amount = ".$random_number.",
+            amount = {$random_number},
             zone_id = VALUES(zone_id),
             vehicle_type = VALUES(vehicle_type),
             parking_duration = VALUES(parking_duration),
@@ -107,28 +100,26 @@ try {
     exit;
 }
 
-// Redirect to Flutterwave
-//$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X";
-$public_key = "FLWPUBK-0d75347d8f65a22aaad296c691bb2492-X";
+$paystack_public_key = 'pk_test_0c0a1b77e29b0d2ff7b4379ea28c2f778aaa6b9e';
 $callback_url = "https://nairobi.autos/verify_payment.php";
-$payment_url = "https://checkout.flutterwave.com/v3/hosted/pay";
 
 echo '
-    <form id="flwRedirectForm" method="POST" action="'.$payment_url.'">
-        <input type="hidden" name="public_key" value="'.$public_key.'">
-        <input type="hidden" name="tx_ref" value="'.$tx_ref.'">
-        <input type="hidden" name="amount" value="'.$new_payable.'">
-        <input type="hidden" name="currency" value="KES">
-        <input type="hidden" name="redirect_url" value="'.$callback_url.'">
-        <input type="hidden" name="payment_options" value="mobilemoney">
-        <input type="hidden" name="customer[name]" value="Parking Client">
-        <input type="hidden" name="customer[phonenumber]" value="'.$client_phone.'">
-        <input type="hidden" name="customer[email]" value="parking@appm.nairobiservices.go.ke">
-        <input type="hidden" name="customizations[title]" value="Nairobi Parking Module">
-        <input type="hidden" name="customizations[description]" value="Pay for Nairobi parking service">
-    </form>
-
-    <script>
-        document.getElementById("flwRedirectForm").submit();
-    </script>
-';
+<form id="paystackForm">
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script>
+    var handler = PaystackPop.setup({
+      key: "' . $paystack_public_key . '",
+      email: "parking@appm.nairobiservices.go.ke",
+      amount: ' . ((int)($new_payable * 100)) . ',
+      currency: "KES",
+      reference: "' . $tx_ref . '",
+      callback: function(response) {
+        window.location.href = "' . $callback_url . '?status=success&tx_ref=' . $tx_ref . '&transaction_id=" + response.reference;
+      },
+      onClose: function() {
+        alert("Payment window closed.");
+      }
+    });
+    handler.openIframe();
+  </script>
+</form>';
