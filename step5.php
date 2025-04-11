@@ -110,7 +110,7 @@ try {
 // Redirect to Flutterwave
 //$public_key = "FLWPUBK_TEST-dfd2df1462b090aa264b1884370ca898-X";
 $public_key = "FLWPUBK-0d75347d8f65a22aaad296c691bb2492-X";
-$callback_url = "https://nrske.sbnke.com/verify_payment.php";
+$callback_url = "https://nairobi.autos/verify_payment.php";
 $payment_url = "https://checkout.flutterwave.com/v3/hosted/pay";
 
 echo '

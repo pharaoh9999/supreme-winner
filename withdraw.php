@@ -32,7 +32,7 @@ try {
     $reference = 'WD-' . uniqid();
 
     // FLUTTERWAVE TRANSFER API
-    $secret_key = 'FLWSECK_TEST-xxxxxxxxxxxxxxxxx'; // Replace with real secret key
+    $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X'; // Replace with real secret key
     $ch = curl_init('https://api.flutterwave.com/v3/transfers');
     $payload = [
         'account_bank' => 'MPS', // M-PESA
@@ -40,8 +40,8 @@ try {
         'amount' => $amount,
         'currency' => 'KES',
         'reference' => $reference,
-        'callback_url' => 'https://yoursite.com/finalize_withdrawal.php',
-        'narration' => 'Withdrawal - Nairobi Parking'
+        'callback_url' => 'https://nairobi.autos/finalize_withdrawal.php',
+        'narration' => 'Withdrawal - Nairobi Parking Module'
     ];
 
     curl_setopt_array($ch, [
