@@ -6,18 +6,18 @@ require './includes/conn.php';
 $pdo = new AutoConn();
 $conn = $pdo->open();
 
-$client_phone = "254700000000";
+$user_id = $_SESSION['id'];
 
-$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE client_phone = ? AND status = 'completed'");
-$stmt->execute([$client_phone]);
+$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE user_id = ? AND status = 'completed'");
+$stmt->execute([$user_id]);
 $total_earnings = $stmt->fetchColumn() ?? 0;
 
-$stmt = $conn->prepare("SELECT amount, ref, status, created_at FROM withdrawals WHERE client_phone = ? ORDER BY created_at DESC LIMIT 5");
-$stmt->execute([$client_phone]);
+$stmt = $conn->prepare("SELECT amount, ref, status, created_at FROM withdrawals WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$stmt->execute([$user_id]);
 $withdrawals = $stmt->fetchAll();
 
-$stmt = $conn->prepare("SELECT status, COUNT(*) AS count FROM transactions WHERE client_phone = ? GROUP BY status");
-$stmt->execute([$client_phone]);
+$stmt = $conn->prepare("SELECT status, COUNT(*) AS count FROM transactions WHERE user_id = ? GROUP BY status");
+$stmt->execute([$user_id]);
 $statuses = $stmt->fetchAll();
 $chart_labels = [];
 $chart_data = [];
@@ -26,8 +26,8 @@ foreach ($statuses as $row) {
     $chart_data[] = (int)$row['count'];
 }
 
-$stmt = $conn->prepare("SELECT DATE(created_at) as date, SUM(broker_fee) as total FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1 GROUP BY DATE(created_at) ORDER BY date ASC LIMIT 10");
-$stmt->execute([$client_phone]);
+$stmt = $conn->prepare("SELECT DATE(created_at) as date, SUM(broker_fee) as total FROM transactions WHERE user_id = ? AND flutterwave_verified = 1 GROUP BY DATE(created_at) ORDER BY date ASC LIMIT 10");
+$stmt->execute([$user_id]);
 $trend_labels = [];
 $trend_data = [];
 foreach ($stmt->fetchAll() as $row) {
@@ -105,7 +105,7 @@ $pdo->close();
                         <div class="mb-2">
                             <input type="text" class="form-control" name="beneficiary_phone" placeholder="Beneficiary Phone (e.g. 2547xxxxxxx)" required>
                         </div>
-                        <input type="hidden" name="phone" value="<?php echo htmlspecialchars($client_phone); ?>">
+                        <input type="hidden" name="phone" value="<?php echo htmlspecialchars($user_id); ?>">
                         <input type="hidden" name="amount" value="<?php echo $total_earnings; ?>">
                         <button type="submit" id="withdrawBtn" class="btn btn-outline-primary w-100" <?php echo ($total_earnings < 10) ? 'disabled' : ''; ?>>Withdraw Funds</button>
                     </form>
