@@ -14,7 +14,7 @@ if (!isset($data['data']['reference']) || !isset($data['data']['status'])) {
 
 $ref = $data['data']['reference'];
 $status = strtolower($data['data']['status']);
-$amount = isset($data['data']['amount']) ? floatval($data['data']['amount']) / 100 : 0; // Paystack sends amount in kobo
+$amount = isset($data['data']['amount']) ? floatval($data['data']['amount']) : 0; // Paystack sends amount in kobo
 $phone = isset($data['data']['recipient']['details']['account_number']) ? preg_replace('/[^0-9]/', '', $data['data']['recipient']['details']['account_number']) : null;
 
 $pdo = new AutoConn();

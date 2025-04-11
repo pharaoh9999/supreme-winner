@@ -37,7 +37,7 @@ try {
     }
 
     $reference = 'WD-' . uniqid();
-    $secret_key = 'sk_test_a5f6cd1c2fbdb51e7264147ae1dc85f6431333d5'; // Replace with your real Paystack secret key
+    $secret_key = 'sk_live_7151dcc2790def66d1327a4b06ec9ed3efa4dcfb'; // Replace with your real Paystack secret key
 
     // Create transfer recipient
     $recipient_data = [
@@ -73,10 +73,11 @@ try {
     // Initiate transfer
     $transfer_data = [
         'source' => 'balance',
-        'amount' => intval($amount * 100), // Paystack uses kobo
+        'amount' => intval($amount), // Paystack uses kobo
         'recipient' => $recipient_code,
         'reason' => 'Withdrawal - Nairobi Parking Module',
-        'reference' => $reference
+        'reference' => $reference,
+        'currency' => 'KES'
     ];
 
     $ch = curl_init('https://api.paystack.co/transfer');

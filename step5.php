@@ -100,7 +100,7 @@ try {
     exit;
 }
 
-$paystack_public_key = 'pk_test_6bc7894bc9912cba9710a79b5f61d2a73b98136a';
+$paystack_public_key = 'pk_live_7b8f30a281295efaaf863d3556346a51279c5ca9';
 $callback_url = "https://nairobi.autos/verify_payment.php";
 
 echo '
