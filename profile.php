@@ -50,6 +50,20 @@ $pdo->close();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .card h5 {
+      font-weight: 600;
+    }
+    canvas {
+      max-height: 280px;
+    }
+    .navbar-brand {
+      font-weight: bold;
+    }
+    body {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 <body class="bg-light">
 
@@ -74,30 +88,30 @@ $pdo->close();
 </nav>
 
 <!-- Dashboard Content -->
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   <div class="text-center mb-4">
-    <h2 class="fw-bold">👤 My Profile Dashboard</h2>
+    <h2 class="fw-bold text-dark">👤 My Profile Dashboard</h2>
     <p class="text-muted">Manage your earnings, track vehicle payments, and withdraw commissions.</p>
   </div>
 
-  <div class="row g-4">
+  <div class="row g-4 mb-4">
     <div class="col-md-6">
       <div class="card shadow-sm p-3">
-        <h5 class="text-primary">💰 Earnings Overview</h5>
-        <p>Balance: <strong id="earningsAmount">KES <?php echo number_format($total_earnings, 2); ?></strong></p>
+        <h5 class="text-success">💰 Earnings Overview</h5>
+        <p class="fs-5">Balance: <strong id="earningsAmount">KES <?php echo number_format($total_earnings, 2); ?></strong></p>
         <form id="withdrawForm" method="POST" action="withdraw.php">
           <input type="hidden" name="phone" value="<?php echo htmlspecialchars($client_phone); ?>">
           <input type="hidden" name="amount" value="<?php echo $total_earnings; ?>">
           <button type="submit" class="btn btn-outline-primary w-100" <?php echo ($total_earnings < 10) ? 'disabled' : ''; ?>>Withdraw Funds</button>
         </form>
-        <small class="text-muted">* Minimum withdrawal is KES 10</small>
+        <small class="text-muted d-block mt-2">* Minimum withdrawal is KES 10</small>
       </div>
     </div>
 
     <div class="col-md-6">
       <div class="card shadow-sm p-3">
-        <h5 class="text-primary">🚗 Vehicles You've Paid For</h5>
-        <ul class="list-group" id="paidVehicles">
+        <h5 class="text-info">🚗 Vehicles You've Paid For</h5>
+        <ul class="list-group list-group-flush" id="paidVehicles">
           <li class="list-group-item">Loading...</li>
         </ul>
       </div>
@@ -105,8 +119,8 @@ $pdo->close();
 
     <div class="col-md-6">
       <div class="card shadow-sm p-3">
-        <h5 class="text-primary">⚠️ Incomplete Parking Processes</h5>
-        <ul class="list-group" id="pendingVehicles">
+        <h5 class="text-warning">⚠️ Incomplete Parking Processes</h5>
+        <ul class="list-group list-group-flush" id="pendingVehicles">
           <li class="list-group-item">Loading...</li>
         </ul>
       </div>
@@ -114,13 +128,13 @@ $pdo->close();
 
     <div class="col-md-6">
       <div class="card shadow-sm p-3">
-        <h5 class="text-primary">📅 Recent Withdrawals</h5>
-        <ul class="list-group">
+        <h5 class="text-secondary">📅 Recent Withdrawals</h5>
+        <ul class="list-group list-group-flush">
           <?php if ($withdrawals): ?>
             <?php foreach ($withdrawals as $row): ?>
               <li class="list-group-item d-flex justify-content-between">
-                <span>KES <?php echo number_format($row['amount'], 2); ?> <small>(<?php echo $row['status']; ?>)</small></span>
-                <small><?php echo date('M d, H:i', strtotime($row['created_at'])); ?></small>
+                <span>KES <?php echo number_format($row['amount'], 2); ?> <small class="text-muted">(<?php echo $row['status']; ?>)</small></span>
+                <small class="text-muted"><?php echo date('M d, H:i', strtotime($row['created_at'])); ?></small>
               </li>
             <?php endforeach; ?>
           <?php else: ?>
@@ -138,20 +152,20 @@ $pdo->close();
   <div class="row g-4 mb-5">
     <div class="col-md-6">
       <div class="card p-3 shadow-sm">
-        <h5 class="text-center">Earnings Trend</h5>
+        <h5 class="text-center">📈 Earnings Trend</h5>
         <canvas id="trendChart"></canvas>
       </div>
     </div>
     <div class="col-md-6">
       <div class="card p-3 shadow-sm">
-        <h5 class="text-center">Paid vs Pending</h5>
+        <h5 class="text-center">📊 Paid vs Pending</h5>
         <canvas id="statusChart"></canvas>
       </div>
     </div>
   </div>
 
-  <div class="card p-3 shadow-sm">
-    <h5 class="text-center">Recent Withdrawals</h5>
+  <div class="card p-3 shadow-sm mb-5">
+    <h5 class="text-center">📤 Recent Withdrawals</h5>
     <canvas id="withdrawalsChart"></canvas>
   </div>
 </div>
@@ -186,7 +200,9 @@ new Chart(document.getElementById('trendChart'), {
       data: <?php echo json_encode($trend_data); ?>,
       tension: 0.3,
       fill: true,
-      borderWidth: 2
+      borderWidth: 2,
+      borderColor: '#0d6efd',
+      backgroundColor: 'rgba(13,110,253,0.1)'
     }]
   }
 });
@@ -197,7 +213,8 @@ new Chart(document.getElementById('statusChart'), {
     labels: <?php echo json_encode($chart_labels); ?>,
     datasets: [{
       data: <?php echo json_encode($chart_data); ?>,
-      borderWidth: 1
+      borderWidth: 1,
+      backgroundColor: ['#198754', '#ffc107', '#dc3545', '#0d6efd']
     }]
   }
 });
@@ -209,7 +226,7 @@ new Chart(document.getElementById('withdrawalsChart'), {
     datasets: [{
       label: 'KES',
       data: <?php echo json_encode(array_column($withdrawals, 'amount')); ?>,
-      backgroundColor: '#0d6efd'
+      backgroundColor: '#198754'
     }]
   }
 });
