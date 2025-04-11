@@ -23,7 +23,7 @@ $phone = preg_replace('/[^0-9]/', '', $_POST['phone']);
 $amount = floatval($_POST['amount']);
 $beneficiary_name = $_POST['beneficiary_name'];
 
-if (strlen($phone) !== 12 || substr($phone, 0, 3) !== '254' || $amount < 10) {
+if (strlen($beneficiary_phone) !== 12 || substr($beneficiary_phone, 0, 3) !== '254' || $amount < 10) {
     echo json_encode(['success' => false, 'message' => 'Invalid withdrawal request.']);
     exit;
 }
