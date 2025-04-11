@@ -18,7 +18,6 @@ $pdo = new AutoConn();
 $conn = $pdo->open();
 
 try {
-    // Re-check available earnings (prevention of form tampering)
     $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1");
     $stmt->execute([$phone]);
     $row = $stmt->fetch();
@@ -28,14 +27,12 @@ try {
         die("Withdrawal amount exceeds available balance.");
     }
 
-    // Generate unique transfer reference
     $reference = 'WD-' . uniqid();
 
-    // FLUTTERWAVE TRANSFER API
-    $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X'; // Replace with real secret key
+    $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X';
     $ch = curl_init('https://api.flutterwave.com/v3/transfers');
     $payload = [
-        'account_bank' => 'MPS', // M-PESA
+        'account_bank' => 'MPS',
         'account_number' => $phone,
         'amount' => $amount,
         'currency' => 'KES',
@@ -58,18 +55,19 @@ try {
     curl_close($ch);
 
     $result = json_decode($response, true);
+
     if (!isset($result['status']) || $result['status'] !== 'success') {
-        die("Flutterwave transfer failed. Try again later.");
+        echo "<div class='alert alert-danger'><strong>Flutterwave transfer failed:</strong><br><pre>" . print_r($result, true) . "</pre></div>";
+        exit;
     }
 
-    // Save withdrawal request
     $save = $conn->prepare("INSERT INTO withdrawals (client_phone, amount, ref, status, created_at) VALUES (?, ?, ?, ?, NOW())");
     $save->execute([$phone, $amount, $reference, 'pending']);
 
     echo "<div class='alert alert-success'>Withdrawal of KES " . number_format($amount, 2) . " has been initiated to $phone. Ref: $reference</div>";
 
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+    echo "<div class='alert alert-danger'>System error: " . htmlspecialchars($e->getMessage()) . "</div>";
 }
 
 $pdo->close();
