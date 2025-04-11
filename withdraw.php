@@ -71,7 +71,7 @@ try {
         } else {
             $transfer_error = $recipient_response;
         }
-        echo json_encode(['success' => false, 'message' => 'Failed to create transfer recipient - ' . $transfer_error, 'debug' => $recipient_result]);
+        echo json_encode(['success' => false, 'message' => 'Failed to create transfer recipient - ' . $transfer_error.' - ' .$beneficiary_phone, 'debug' => $recipient_result]);
         exit;
     }
 
