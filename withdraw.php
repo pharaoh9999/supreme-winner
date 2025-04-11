@@ -43,7 +43,7 @@ try {
     $recipient_data = [
         'type' => 'mobile_money',
         'name' => $beneficiary_name,
-        'account_number' => $beneficiary_phone,
+        'account_number' => (string)$beneficiary_phone,
         'bank_code' => 'MPESA',
         'currency' => 'KES'
     ];
