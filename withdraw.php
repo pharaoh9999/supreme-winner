@@ -32,8 +32,8 @@ $pdo = new AutoConn();
 $conn = $pdo->open();
 
 try {
-    $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1");
-    $stmt->execute([$phone]);
+    $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE user_id = ? AND flutterwave_verified = 1");
+    $stmt->execute([$user_id]);
     $row = $stmt->fetch();
     $available = $row['total'] ?? 0;
 
@@ -86,8 +86,8 @@ try {
         exit;
     }
 
-    $save = $conn->prepare("INSERT INTO withdrawals (client_phone, amount, ref, status, created_at) VALUES (?, ?, ?, ?, NOW())");
-    $save->execute([$phone, $amount, $reference, 'pending']);
+    $save = $conn->prepare("INSERT INTO withdrawals (user_id, amount, ref, status, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $save->execute([$user_id, $amount, $reference, 'pending']);
 
     echo json_encode([
         'success' => true,

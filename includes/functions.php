@@ -62,6 +62,7 @@ if (isset($_SESSION['token'])) {
     }
 }
 
+$user_id = $_SESSION['id'];
 
 use simplehtmldom\HtmlDocument;
 
