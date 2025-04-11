@@ -57,6 +57,7 @@ try {
         $result = json_decode($response, true);
         if (!isset($result['status']) || !$result['status'] || $result['data']['status'] !== 'success') {
             echo "<div class='alert alert-danger'>❌ Paystack payment verification failed.</div>";
+            echo json_encode($result);
             exit;
         }
 
