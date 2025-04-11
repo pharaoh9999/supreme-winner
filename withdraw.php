@@ -36,6 +36,26 @@ try {
         exit;
     }
 
+    function normalizeMpesaPhone($raw_phone) {
+        $digits = preg_replace('/[^0-9]/', '', $raw_phone);
+    
+        if (preg_match('/^(?:254|\+254)(7|1)\d{8}$/', $digits)) {
+            return '0' . substr($digits, -9); // → 0712345678 / 0112345678
+        }
+    
+        if (preg_match('/^0(7|1)\d{8}$/', $digits)) {
+            return $digits; // Already correct
+        }
+    
+        return null; // Invalid format
+    }
+
+    $mpesa_account_number = normalizeMpesaPhone($beneficiary_phone);
+if (!$mpesa_account_number) {
+    echo json_encode(['success' => false, 'message' => 'Unsupported phone format for M-Pesa.']);
+    exit;
+}
+
     $reference = 'WD-' . uniqid();
     $secret_key = 'sk_live_7151dcc2790def66d1327a4b06ec9ed3efa4dcfb'; // Replace with your real Paystack secret key
 
@@ -43,7 +63,7 @@ try {
     $recipient_data = [
         'type' => 'mobile_money',
         'name' => $beneficiary_name,
-        'account_number' => (string)$beneficiary_phone,
+        'account_number' => $mpesa_account_number,
         'bank_code' => 'MPESA',
         'currency' => 'KES'
     ];
