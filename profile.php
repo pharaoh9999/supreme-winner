@@ -11,9 +11,19 @@ $conn = $pdo->open();
 
 $user_id = $_SESSION['id'];
 
-$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE user_id = ? AND status = 'completed'");
+// Total earned
+$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earned FROM transactions WHERE user_id = ? AND status = 'completed'");
 $stmt->execute([$user_id]);
-$total_earnings = $stmt->fetchColumn() ?? 0;
+$total_earned = $stmt->fetchColumn() ?? 0;
+
+// Total withdrawn
+$stmt = $conn->prepare("SELECT SUM(amount) as total_withdrawn FROM withdrawals WHERE user_id = ? AND status = 'success'");
+$stmt->execute([$user_id]);
+$total_withdrawn = $stmt->fetchColumn() ?? 0;
+
+// Actual balance
+$total_earnings = $total_earned - $total_withdrawn;
+
 
 $stmt = $conn->prepare("SELECT amount, ref, status, created_at FROM withdrawals WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
 $stmt->execute([$user_id]);
