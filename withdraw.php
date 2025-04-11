@@ -24,7 +24,7 @@ $pdo = new AutoConn();
 $conn = $pdo->open();
 
 try {
-    $user_id = $_SESSION['user_id'] ?? 1;
+    $user_id = $_SESSION['id'] ?? 1;
 
     $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE user_id = ? AND status = 'completed'");
     $stmt->execute([$user_id]);
