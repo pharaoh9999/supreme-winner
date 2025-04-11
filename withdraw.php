@@ -32,7 +32,7 @@ $pdo = new AutoConn();
 $conn = $pdo->open();
 
 try {
-    $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE user_id = ? AND flutterwave_verified = 1");
+    $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE user_id = ? AND status = 'completed'");
     $stmt->execute([$user_id]);
     $row = $stmt->fetch();
     $available = $row['total'] ?? 0;
