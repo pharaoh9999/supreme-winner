@@ -6,19 +6,16 @@ require './includes/conn.php';
 $pdo = new AutoConn();
 $conn = $pdo->open();
 
-$client_phone = "254700000000"; // Replace with session-bound value
+$client_phone = "254700000000";
 
-// Earnings
 $stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1");
 $stmt->execute([$client_phone]);
 $total_earnings = $stmt->fetchColumn() ?? 0;
 
-// Withdrawals
 $stmt = $conn->prepare("SELECT amount, ref, status, created_at FROM withdrawals WHERE client_phone = ? ORDER BY created_at DESC LIMIT 5");
 $stmt->execute([$client_phone]);
 $withdrawals = $stmt->fetchAll();
 
-// Chart data - paid vs pending
 $stmt = $conn->prepare("SELECT status, COUNT(*) AS count FROM transactions WHERE client_phone = ? GROUP BY status");
 $stmt->execute([$client_phone]);
 $statuses = $stmt->fetchAll();
@@ -29,7 +26,6 @@ foreach ($statuses as $row) {
   $chart_data[] = (int)$row['count'];
 }
 
-// Chart data - earnings trend
 $stmt = $conn->prepare("SELECT DATE(created_at) as date, SUM(broker_fee) as total FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1 GROUP BY DATE(created_at) ORDER BY date ASC LIMIT 10");
 $stmt->execute([$client_phone]);
 $trend_labels = [];
@@ -51,23 +47,14 @@ $pdo->close();
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .card h5 {
-      font-weight: 600;
-    }
-    canvas {
-      max-height: 280px;
-    }
-    .navbar-brand {
-      font-weight: bold;
-    }
-    body {
-      scroll-behavior: smooth;
-    }
+    .card h5 { font-weight: 600; }
+    canvas { max-height: 280px; }
+    .navbar-brand { font-weight: bold; }
+    body { scroll-behavior: smooth; }
   </style>
 </head>
 <body class="bg-light">
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   <div class="container-fluid">
     <a class="navbar-brand" href="index.php">Nairobi Parking</a>
@@ -87,7 +74,6 @@ $pdo->close();
   </div>
 </nav>
 
-<!-- Dashboard Content -->
 <div class="container mt-5 mb-5">
   <div class="text-center mb-4">
     <h2 class="fw-bold text-dark">👤 My Profile Dashboard</h2>
@@ -99,11 +85,12 @@ $pdo->close();
       <div class="card shadow-sm p-3">
         <h5 class="text-success">💰 Earnings Overview</h5>
         <p class="fs-5">Balance: <strong id="earningsAmount">KES <?php echo number_format($total_earnings, 2); ?></strong></p>
-        <form id="withdrawForm" method="POST" action="withdraw.php">
+        <form id="withdrawForm">
           <input type="hidden" name="phone" value="<?php echo htmlspecialchars($client_phone); ?>">
           <input type="hidden" name="amount" value="<?php echo $total_earnings; ?>">
-          <button type="submit" class="btn btn-outline-primary w-100" <?php echo ($total_earnings < 10) ? 'disabled' : ''; ?>>Withdraw Funds</button>
+          <button type="submit" id="withdrawBtn" class="btn btn-outline-primary w-100" <?php echo ($total_earnings < 10) ? 'disabled' : ''; ?>>Withdraw Funds</button>
         </form>
+        <div id="withdrawMsg" class="mt-2"></div>
         <small class="text-muted d-block mt-2">* Minimum withdrawal is KES 10</small>
       </div>
     </div>
@@ -129,7 +116,7 @@ $pdo->close();
     <div class="col-md-6">
       <div class="card shadow-sm p-3">
         <h5 class="text-secondary">📅 Recent Withdrawals</h5>
-        <ul class="list-group list-group-flush">
+        <ul class="list-group list-group-flush" id="recentWithdrawals">
           <?php if ($withdrawals): ?>
             <?php foreach ($withdrawals as $row): ?>
               <li class="list-group-item d-flex justify-content-between">
@@ -158,20 +145,42 @@ $pdo->close();
     </div>
     <div class="col-md-6">
       <div class="card p-3 shadow-sm">
-        <h5 class="text-center">📊 Paid vs Pending</h5>
+        <h5 class="text-center">📈 Paid vs Pending</h5>
         <canvas id="statusChart"></canvas>
       </div>
     </div>
   </div>
 
   <div class="card p-3 shadow-sm mb-5">
-    <h5 class="text-center">📤 Recent Withdrawals</h5>
+    <h5 class="text-center">📄 Recent Withdrawals</h5>
     <canvas id="withdrawalsChart"></canvas>
   </div>
 </div>
 
 <script>
 $(document).ready(function () {
+  $('#withdrawForm').on('submit', function (e) {
+    e.preventDefault();
+    $('#withdrawMsg').html('<div class="text-info">Processing withdrawal...</div>');
+    $.ajax({
+      url: 'withdraw.php',
+      method: 'POST',
+      data: $(this).serialize(),
+      success: function (res) {
+        if (res.success) {
+          $('#withdrawMsg').html(`<div class='alert alert-success'>${res.message}</div>`);
+          $('#earningsAmount').text(`KES ${res.new_balance.toFixed(2)}`);
+          if (res.new_balance < 10) $('#withdrawBtn').prop('disabled', true);
+        } else {
+          $('#withdrawMsg').html(`<div class='alert alert-danger'>${res.message}</div>`);
+        }
+      },
+      error: function () {
+        $('#withdrawMsg').html('<div class="alert alert-danger">Server error. Try again.</div>');
+      }
+    });
+  });
+
   $.getJSON('ajax/fetch_paid.php', function(data) {
     const list = $('#paidVehicles').empty();
     if (data.length) {

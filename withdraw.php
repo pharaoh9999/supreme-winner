@@ -3,15 +3,19 @@ require './includes/config.php';
 require './includes/functions.php';
 require './includes/conn.php';
 
+header('Content-Type: application/json');
+
 if (!isset($_POST['phone']) || !isset($_POST['amount'])) {
-    die("Invalid request.");
+    echo json_encode(['success' => false, 'message' => 'Invalid request.']);
+    exit;
 }
 
 $phone = preg_replace('/[^0-9]/', '', $_POST['phone']);
 $amount = floatval($_POST['amount']);
 
 if (strlen($phone) !== 12 || substr($phone, 0, 3) !== '254' || $amount < 10) {
-    die("Invalid withdrawal request.");
+    echo json_encode(['success' => false, 'message' => 'Invalid withdrawal request.']);
+    exit;
 }
 
 $pdo = new AutoConn();
@@ -24,7 +28,8 @@ try {
     $available = $row['total'] ?? 0;
 
     if ($amount > $available) {
-        die("Withdrawal amount exceeds available balance.");
+        echo json_encode(['success' => false, 'message' => 'Withdrawal amount exceeds available balance.']);
+        exit;
     }
 
     $reference = 'WD-' . uniqid();
@@ -57,17 +62,26 @@ try {
     $result = json_decode($response, true);
 
     if (!isset($result['status']) || $result['status'] !== 'success') {
-        echo "<div class='alert alert-danger'><strong>Flutterwave transfer failed:</strong><br><pre>" . print_r($result, true) . "</pre></div>";
+        echo json_encode([
+            'success' => false,
+            'message' => 'Flutterwave transfer failed.',
+            'debug' => $result
+        ]);
         exit;
     }
 
     $save = $conn->prepare("INSERT INTO withdrawals (client_phone, amount, ref, status, created_at) VALUES (?, ?, ?, ?, NOW())");
     $save->execute([$phone, $amount, $reference, 'pending']);
 
-    echo "<div class='alert alert-success'>Withdrawal of KES " . number_format($amount, 2) . " has been initiated to $phone. Ref: $reference</div>";
+    echo json_encode([
+        'success' => true,
+        'message' => "Withdrawal of KES " . number_format($amount, 2) . " has been initiated to $phone.",
+        'reference' => $reference,
+        'new_balance' => $available - $amount
+    ]);
 
 } catch (Exception $e) {
-    echo "<div class='alert alert-danger'>System error: " . htmlspecialchars($e->getMessage()) . "</div>";
+    echo json_encode(['success' => false, 'message' => 'System error: ' . $e->getMessage()]);
 }
 
 $pdo->close();
