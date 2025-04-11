@@ -8,7 +8,7 @@ $conn = $pdo->open();
 
 $client_phone = "254700000000";
 
-$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE client_phone = ? AND flutterwave_verified = 1");
+$stmt = $conn->prepare("SELECT SUM(broker_fee) as total_earnings FROM transactions WHERE client_phone = ? AND status = 'completed'");
 $stmt->execute([$client_phone]);
 $total_earnings = $stmt->fetchColumn() ?? 0;
 
