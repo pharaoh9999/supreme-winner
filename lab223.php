@@ -27,6 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 echo '<br/>';
-echo json_encode($_SESSION, JSON_PRETTY_PRINT);
+echo json_encode($_SERVER, JSON_PRETTY_PRINT);
 echo '<br/>';
-echo session_id();
+//echo session_id();
