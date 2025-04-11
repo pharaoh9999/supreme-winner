@@ -43,7 +43,7 @@ try {
     $original_total = floatval($data['total']);
 
     if (!$flutterwave_verified) {
-        $secret_key = 'sk_test_ecd1a5358571ea23ab08b1b05fb90b5400aa29c4';
+        $secret_key = 'sk_test_a5f6cd1c2fbdb51e7264147ae1dc85f6431333d5';
         $verify_url = "https://api.paystack.co/transaction/verify/" . urlencode($paystack_tx_ref);
 
         $ch = curl_init($verify_url);

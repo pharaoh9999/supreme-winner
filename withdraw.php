@@ -5,23 +5,15 @@ require './includes/conn.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_POST['phone']) || !isset($_POST['amount'])) {
-    echo json_encode(['success' => false, 'message' => 'Invalid request.']);
-    exit;
-}
-if (!isset($_POST['beneficiary_name']) || !isset($_POST['beneficiary_name'])) {
-    echo json_encode(['success' => false, 'message' => 'Beneficiary name needed.']);
-    exit;
-}
-if (!isset($_POST['beneficiary_phone']) || !isset($_POST['beneficiary_phone'])) {
-    echo json_encode(['success' => false, 'message' => 'Beneficiary phone number needed.']);
+if (!isset($_POST['phone']) || !isset($_POST['amount']) || !isset($_POST['beneficiary_name']) || !isset($_POST['beneficiary_phone'])) {
+    echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
     exit;
 }
 
 $beneficiary_phone = preg_replace('/[^0-9]/', '', $_POST['beneficiary_phone']);
 $phone = preg_replace('/[^0-9]/', '', $_POST['phone']);
 $amount = floatval($_POST['amount']);
-$beneficiary_name = $_POST['beneficiary_name'];
+$beneficiary_name = trim($_POST['beneficiary_name']);
 
 if (strlen($beneficiary_phone) !== 12 || substr($beneficiary_phone, 0, 3) !== '254' || $amount < 10) {
     echo json_encode(['success' => false, 'message' => 'Invalid withdrawal request.']);
@@ -32,6 +24,8 @@ $pdo = new AutoConn();
 $conn = $pdo->open();
 
 try {
+    $user_id = $_SESSION['user_id'] ?? 1;
+
     $stmt = $conn->prepare("SELECT SUM(broker_fee) AS total FROM transactions WHERE user_id = ? AND status = 'completed'");
     $stmt->execute([$user_id]);
     $row = $stmt->fetch();
@@ -43,20 +37,18 @@ try {
     }
 
     $reference = 'WD-' . uniqid();
+    $secret_key = 'sk_test_7e7a6a0f2a4a70f9c3bd89c86c0b8da6551169b3'; // Replace with your real Paystack secret key
 
-    $secret_key = 'FLWSECK-1880561b6c6734eff7b4b978291085b8-1961d71dfe9vt-X';
-    $ch = curl_init('https://api.flutterwave.com/v3/transfers');
-    $payload = [
-        'account_bank' => 'MPS',
+    // Create transfer recipient
+    $recipient_data = [
+        'type' => 'mobile_money',
+        'name' => $beneficiary_name,
         'account_number' => $beneficiary_phone,
-        'amount' => $amount,
-        'currency' => 'KES',
-        'beneficiary_name' => $beneficiary_name,
-        'reference' => $reference,
-        'callback_url' => 'https://nairobi.autos/finalize_withdrawal.php',
-        'narration' => 'Withdrawal - Nairobi Parking Module'
+        'bank_code' => 'MPS',
+        'currency' => 'KES'
     ];
 
+    $ch = curl_init('https://api.paystack.co/transferrecipient');
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
@@ -64,25 +56,48 @@ try {
             "Authorization: Bearer $secret_key",
             "Content-Type: application/json"
         ],
-        CURLOPT_POSTFIELDS => json_encode($payload)
+        CURLOPT_POSTFIELDS => json_encode($recipient_data)
     ]);
 
-    $response = curl_exec($ch);
+    $recipient_response = curl_exec($ch);
+    curl_close($ch);
+    $recipient_result = json_decode($recipient_response, true);
+
+    if (!isset($recipient_result['status']) || !$recipient_result['status']) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create transfer recipient', 'debug' => $recipient_result]);
+        exit;
+    }
+
+    $recipient_code = $recipient_result['data']['recipient_code'];
+
+    // Initiate transfer
+    $transfer_data = [
+        'source' => 'balance',
+        'amount' => intval($amount * 100), // Paystack uses kobo
+        'recipient' => $recipient_code,
+        'reason' => 'Withdrawal - Nairobi Parking Module',
+        'reference' => $reference
+    ];
+
+    $ch = curl_init('https://api.paystack.co/transfer');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $secret_key",
+            "Content-Type: application/json"
+        ],
+        CURLOPT_POSTFIELDS => json_encode($transfer_data)
+    ]);
+
+    $transfer_response = curl_exec($ch);
     curl_close($ch);
 
-    $result = json_decode($response, true);
+    $transfer_result = json_decode($transfer_response, true);
 
-    if (!isset($result['status']) || $result['status'] !== 'success') {
-        if (isset($result['message'])) {
-            $flw_message = $result['message'];
-        } else {
-            $flw_message = 'Flutterwave transfer failed.';
-        }
-        echo json_encode([
-            'success' => false,
-            'message' => 'FLW: '.$flw_message,
-            'debug' => $result
-        ]);
+    if (!isset($transfer_result['status']) || !$transfer_result['status']) {
+        $message = $transfer_result['message'] ?? 'Paystack transfer failed.';
+        echo json_encode(['success' => false, 'message' => 'Paystack: ' . $message, 'debug' => $transfer_result]);
         exit;
     }
 
