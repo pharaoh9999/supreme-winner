@@ -44,7 +44,7 @@ try {
         'type' => 'mobile_money',
         'name' => $beneficiary_name,
         'account_number' => $beneficiary_phone,
-        'bank_code' => 'MPS',
+        'bank_code' => 'MPESA',
         'currency' => 'KES'
     ];
 
