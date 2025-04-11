@@ -37,7 +37,7 @@ try {
     }
 
     $reference = 'WD-' . uniqid();
-    $secret_key = 'sk_test_7e7a6a0f2a4a70f9c3bd89c86c0b8da6551169b3'; // Replace with your real Paystack secret key
+    $secret_key = 'sk_test_a5f6cd1c2fbdb51e7264147ae1dc85f6431333d5'; // Replace with your real Paystack secret key
 
     // Create transfer recipient
     $recipient_data = [
