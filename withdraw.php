@@ -64,7 +64,14 @@ try {
     $recipient_result = json_decode($recipient_response, true);
 
     if (!isset($recipient_result['status']) || !$recipient_result['status']) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create transfer recipient - '.$recipient_response, 'debug' => $recipient_result]);
+        if (isset($recipient_result['message'])) {
+            $transfer_error = $recipient_result['message'];
+        } elseif (isset($recipient_result['meta']['nextStep'])) {
+            $transfer_error = $recipient_result['meta']['nextStep'];
+        } else {
+            $transfer_error = $recipient_response;
+        }
+        echo json_encode(['success' => false, 'message' => 'Failed to create transfer recipient - ' . $transfer_error, 'debug' => $recipient_result]);
         exit;
     }
 
