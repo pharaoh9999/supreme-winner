@@ -91,7 +91,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => "Withdrawal of KES " . number_format($amount, 2) . " has been initiated to $phone.",
+        'message' => "Withdrawal of KES " . number_format($amount, 2) . " has been initiated to $beneficiary_phone.",
         'reference' => $reference,
         'new_balance' => $available - $amount
     ]);
